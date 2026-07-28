@@ -1,7 +1,8 @@
 import React from 'react';
+import MilestoneList from '../Milestones/MilestoneList';
 import { ArrowLeft, Building2, MapPin, DollarSign, Calendar, ShieldCheck, AlertCircle, CheckCircle2, TrendingUp } from 'lucide-react';
 
-export default function ProjectDetail({ project, onBack, children }) {
+export default function ProjectDetail({ project, onBack }) {
   if (!project) return null;
 
   const formatCurrency = (val) => {
@@ -97,8 +98,8 @@ export default function ProjectDetail({ project, onBack, children }) {
         </div>
       </div>
 
-      {/* Children Content (Milestones Component Slot) */}
-      <div>{children}</div>
+      {/* Milestone Timeline Component */}
+      <MilestoneList projectId={project.project_id} />
     </div>
   );
 }
