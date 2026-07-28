@@ -13,6 +13,9 @@ try {
   console.log('\n--- Running Project CRUD Integration Tests (Sprint B2) ---');
   execSync('node test/project.test.js', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
 
+  console.log('\n--- Running Milestone CRUD Integration Tests (Sprint B3) ---');
+  execSync('node test/milestone.test.js', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
+
   console.log('\n✅ All API test suites passed cleanly!');
 } catch (err) {
   console.error('\n❌ API Test Suite Execution Failed:', err.message);

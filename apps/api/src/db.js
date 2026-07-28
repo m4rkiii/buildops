@@ -89,32 +89,27 @@ const db = {
     }
 
     if (lowerSql.includes('from projects')) {
-      // Select single project by project_id
       if (lowerSql.includes('project_id =') && !lowerSql.includes('owner_user_id =')) {
         const id = params[0];
         const project = memoryStore.projects.find(p => p.project_id === id);
         return { rows: project ? [project] : [] };
       }
 
-      // Select single project by project_id and owner_user_id
       if (lowerSql.includes('project_id =') && lowerSql.includes('owner_user_id =')) {
         const [project_id, owner_user_id] = params;
         const project = memoryStore.projects.find(p => p.project_id === project_id && p.owner_user_id === owner_user_id);
         return { rows: project ? [project] : [] };
       }
 
-      // Select projects by owner_user_id
       if (lowerSql.includes('owner_user_id =')) {
         const owner_id = params[0];
         const projects = memoryStore.projects.filter(p => p.owner_user_id === owner_id);
         return { rows: projects };
       }
 
-      // Select all projects
       return { rows: [...memoryStore.projects] };
     }
 
-    // UPDATE projects
     if (lowerSql.startsWith('update projects')) {
       const [project_name, project_type, county, nca_contractor_grade, budget_ksh, planned_start_date, planned_end_date, project_id, owner_user_id] = params;
       const index = memoryStore.projects.findIndex(p => p.project_id === project_id && p.owner_user_id === owner_user_id);
@@ -136,7 +131,6 @@ const db = {
       return { rows: [memoryStore.projects[index]] };
     }
 
-    // DELETE from projects
     if (lowerSql.startsWith('delete from projects')) {
       const [project_id, owner_user_id] = params;
       const index = memoryStore.projects.findIndex(p => p.project_id === project_id && p.owner_user_id === owner_user_id);
@@ -144,6 +138,66 @@ const db = {
         return { rows: [] };
       }
       const deleted = memoryStore.projects.splice(index, 1)[0];
+      return { rows: [deleted] };
+    }
+
+    // MILESTONES QUERIES
+    if (lowerSql.startsWith('insert into milestones')) {
+      const [project_id, milestone_name, planned_date, actual_date, status] = params;
+      const newMilestone = {
+        milestone_id: crypto.randomUUID(),
+        project_id,
+        milestone_name,
+        planned_date,
+        actual_date: actual_date || null,
+        status: status || 'pending',
+        created_at: new Date().toISOString()
+      };
+      memoryStore.milestones.push(newMilestone);
+      return { rows: [newMilestone] };
+    }
+
+    if (lowerSql.includes('from milestones')) {
+      if (lowerSql.includes('milestone_id =')) {
+        const id = params[0];
+        const m = memoryStore.milestones.find(m => m.milestone_id === id);
+        return { rows: m ? [m] : [] };
+      }
+
+      if (lowerSql.includes('project_id =')) {
+        const pId = params[0];
+        const ms = memoryStore.milestones.filter(m => m.project_id === pId);
+        return { rows: ms };
+      }
+
+      return { rows: [...memoryStore.milestones] };
+    }
+
+    if (lowerSql.startsWith('update milestones')) {
+      const [milestone_name, planned_date, actual_date, status, milestone_id, project_id] = params;
+      const index = memoryStore.milestones.findIndex(m => m.milestone_id === milestone_id && m.project_id === project_id);
+      if (index === -1) {
+        return { rows: [] };
+      }
+
+      memoryStore.milestones[index] = {
+        ...memoryStore.milestones[index],
+        milestone_name: milestone_name || memoryStore.milestones[index].milestone_name,
+        planned_date: planned_date || memoryStore.milestones[index].planned_date,
+        actual_date: actual_date !== undefined ? actual_date : memoryStore.milestones[index].actual_date,
+        status: status || memoryStore.milestones[index].status
+      };
+
+      return { rows: [memoryStore.milestones[index]] };
+    }
+
+    if (lowerSql.startsWith('delete from milestones')) {
+      const [milestone_id, project_id] = params;
+      const index = memoryStore.milestones.findIndex(m => m.milestone_id === milestone_id && m.project_id === project_id);
+      if (index === -1) {
+        return { rows: [] };
+      }
+      const deleted = memoryStore.milestones.splice(index, 1)[0];
       return { rows: [deleted] };
     }
 
