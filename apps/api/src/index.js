@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
+const projectRoutes = require('./routes/projectRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,8 +21,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Auth Routes (FR01)
+// Routes
 app.use('/auth', authRoutes);
+app.use('/projects', projectRoutes);
 
 if (require.main === module) {
   app.listen(PORT, () => {
