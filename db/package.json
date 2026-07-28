@@ -1,0 +1,15 @@
+{
+  "name": "@buildops/db",
+  "version": "1.0.0",
+  "description": "Database migrations and schema runner for BuildOps Sentinel",
+  "main": "migrate.js",
+  "scripts": {
+    "migrate": "node migrate.js",
+    "test": "node test_schema.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "pg": "^8.11.5",
+    "sql.js": "^1.11.0"
+  }
+}
