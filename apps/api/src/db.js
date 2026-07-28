@@ -201,7 +201,42 @@ const db = {
       return { rows: [deleted] };
     }
 
+    // RISK SCORES QUERIES
+    if (lowerSql.startsWith('insert into risk_scores')) {
+      const [score_id, project_id, delay_risk_score, risk_level, model_version, calculated_at] = params;
+      const newScore = {
+        score_id,
+        project_id,
+        delay_risk_score: parseFloat(delay_risk_score),
+        risk_level,
+        model_version,
+        calculated_at: calculated_at || new Date().toISOString()
+      };
+      
+      const existingIdx = memoryStore.risk_scores.findIndex(r => r.project_id === project_id);
+      if (existingIdx !== -1) {
+        memoryStore.risk_scores[existingIdx] = newScore;
+      } else {
+        memoryStore.risk_scores.push(newScore);
+      }
+      return { rows: [newScore] };
+    }
+
+    if (lowerSql.includes('from risk_scores')) {
+      if (lowerSql.includes('project_id =')) {
+        const pId = params[0];
+        const scores = memoryStore.risk_scores.filter(r => r.project_id === pId);
+        scores.sort((a, b) => new Date(b.calculated_at) - new Date(a.calculated_at));
+        return { rows: scores };
+      }
+      return { rows: [...memoryStore.risk_scores] };
+    }
+
     return { rows: [] };
+  },
+
+  isMemoryMode() {
+    return !pool || useMemoryStore;
   },
 
   setUseMemoryStore(flag) {

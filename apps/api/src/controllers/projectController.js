@@ -1,4 +1,5 @@
 const db = require('../db');
+const riskService = require('../services/riskService');
 
 /**
  * Create a new construction project (FR02)
@@ -42,9 +43,17 @@ async function createProject(req, res) {
       ]
     );
 
+    const project = insertRes.rows[0];
+
+    // Compute initial delay risk score
+    const riskData = await riskService.recalculateDelayRisk(project.project_id);
+
     return res.status(201).json({
       message: 'Project created successfully',
-      project: insertRes.rows[0]
+      project: {
+        ...project,
+        risk_score: riskData
+      }
     });
   } catch (err) {
     console.error('[Project Error] Create failed:', err);
@@ -53,7 +62,7 @@ async function createProject(req, res) {
 }
 
 /**
- * Get all projects owned by the authenticated user (FR02)
+ * Get all projects owned by the authenticated user (FR02/FR05)
  */
 async function getProjects(req, res) {
   try {
@@ -62,7 +71,20 @@ async function getProjects(req, res) {
       [req.user.user_id]
     );
 
-    return res.status(200).json({ projects: projectsRes.rows });
+    const enrichedProjects = await Promise.all(
+      projectsRes.rows.map(async (p) => {
+        let risk = await riskService.getLatestRiskScore(p.project_id);
+        if (!risk) {
+          risk = await riskService.recalculateDelayRisk(p.project_id);
+        }
+        return {
+          ...p,
+          risk_score: risk
+        };
+      })
+    );
+
+    return res.status(200).json({ projects: enrichedProjects });
   } catch (err) {
     console.error('[Project Error] Fetch projects failed:', err);
     return res.status(500).json({ error: 'Internal server error fetching projects' });
@@ -89,7 +111,17 @@ async function getProjectById(req, res) {
       return res.status(403).json({ error: 'Access denied. You do not own this project.' });
     }
 
-    return res.status(200).json({ project });
+    let risk = await riskService.getLatestRiskScore(project.project_id);
+    if (!risk) {
+      risk = await riskService.recalculateDelayRisk(project.project_id);
+    }
+
+    return res.status(200).json({
+      project: {
+        ...project,
+        risk_score: risk
+      }
+    });
   } catch (err) {
     console.error('[Project Error] Fetch project by ID failed:', err);
     return res.status(500).json({ error: 'Internal server error fetching project' });
@@ -146,9 +178,15 @@ async function updateProject(req, res) {
       ]
     );
 
+    const project = updateRes.rows[0];
+    const risk = await riskService.recalculateDelayRisk(project.project_id);
+
     return res.status(200).json({
       message: 'Project updated successfully',
-      project: updateRes.rows[0]
+      project: {
+        ...project,
+        risk_score: risk
+      }
     });
   } catch (err) {
     console.error('[Project Error] Update project failed:', err);

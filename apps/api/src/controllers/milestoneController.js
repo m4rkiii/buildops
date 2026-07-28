@@ -1,4 +1,5 @@
 const db = require('../db');
+const riskService = require('../services/riskService');
 
 const VALID_STATUSES = ['pending', 'in_progress', 'completed', 'delayed'];
 
@@ -17,7 +18,7 @@ async function verifyProjectOwnership(projectId, userId) {
 }
 
 /**
- * Create milestone under a project (FR03)
+ * Create milestone under a project (FR03/FR05)
  */
 async function createMilestone(req, res) {
   try {
@@ -47,9 +48,13 @@ async function createMilestone(req, res) {
       [projectId, milestone_name.trim(), planned_date, actual_date || null, milestoneStatus]
     );
 
+    // Recalculate ML delay risk
+    const riskData = await riskService.recalculateDelayRisk(projectId);
+
     return res.status(201).json({
       message: 'Milestone created successfully',
-      milestone: insertRes.rows[0]
+      milestone: insertRes.rows[0],
+      risk_score: riskData
     });
   } catch (err) {
     console.error('[Milestone Error] Create failed:', err);
@@ -107,7 +112,7 @@ async function getMilestoneById(req, res) {
 }
 
 /**
- * Update milestone details
+ * Update milestone details (FR03/FR05)
  */
 async function updateMilestone(req, res) {
   try {
@@ -148,9 +153,13 @@ async function updateMilestone(req, res) {
       return res.status(404).json({ error: 'Milestone not found' });
     }
 
+    // Recalculate ML delay risk
+    const riskData = await riskService.recalculateDelayRisk(projectId);
+
     return res.status(200).json({
       message: 'Milestone updated successfully',
-      milestone: updateRes.rows[0]
+      milestone: updateRes.rows[0],
+      risk_score: riskData
     });
   } catch (err) {
     console.error('[Milestone Error] Update milestone failed:', err);
@@ -159,7 +168,7 @@ async function updateMilestone(req, res) {
 }
 
 /**
- * Delete milestone
+ * Delete milestone (FR03/FR05)
  */
 async function deleteMilestone(req, res) {
   try {
@@ -176,7 +185,14 @@ async function deleteMilestone(req, res) {
       return res.status(404).json({ error: 'Milestone not found' });
     }
 
-    return res.status(200).json({ message: 'Milestone deleted successfully', milestone_id: milestoneId });
+    // Recalculate ML delay risk
+    const riskData = await riskService.recalculateDelayRisk(projectId);
+
+    return res.status(200).json({
+      message: 'Milestone deleted successfully',
+      milestone_id: milestoneId,
+      risk_score: riskData
+    });
   } catch (err) {
     console.error('[Milestone Error] Delete milestone failed:', err);
     return res.status(500).json({ error: 'Internal server error deleting milestone' });

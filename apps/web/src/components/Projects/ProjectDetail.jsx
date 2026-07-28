@@ -1,6 +1,6 @@
 import React from 'react';
 import MilestoneList from '../Milestones/MilestoneList';
-import { ArrowLeft, Building2, MapPin, DollarSign, Calendar, ShieldCheck, AlertCircle, CheckCircle2, TrendingUp } from 'lucide-react';
+import { ArrowLeft, MapPin, DollarSign, Calendar, AlertCircle, CheckCircle2, TrendingUp, AlertOctagon, AlertTriangle } from 'lucide-react';
 
 export default function ProjectDetail({ project, onBack }) {
   if (!project) return null;
@@ -11,6 +11,42 @@ export default function ProjectDetail({ project, onBack }) {
       currency: 'KES',
       maximumFractionDigits: 0
     }).format(val);
+  };
+
+  const risk = project.risk_score;
+  const riskProbPct = risk ? (risk.delay_risk_score * 100).toFixed(1) : '12.0';
+  const riskLevel = risk ? risk.risk_level : 'LOW';
+
+  const renderRiskMetric = () => {
+    switch (riskLevel) {
+      case 'HIGH':
+        return (
+          <div className="flex items-center space-x-2 mt-1">
+            <span className="text-lg font-bold text-red-400">{riskProbPct}%</span>
+            <span data-testid="risk-score-badge" className="text-[10px] text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20 font-semibold flex items-center">
+              <AlertOctagon className="w-3 h-3 mr-1" /> HIGH
+            </span>
+          </div>
+        );
+      case 'MEDIUM':
+        return (
+          <div className="flex items-center space-x-2 mt-1">
+            <span className="text-lg font-bold text-amber-400">{riskProbPct}%</span>
+            <span data-testid="risk-score-badge" className="text-[10px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 font-semibold flex items-center">
+              <AlertTriangle className="w-3 h-3 mr-1" /> MEDIUM
+            </span>
+          </div>
+        );
+      default:
+        return (
+          <div className="flex items-center space-x-2 mt-1">
+            <span className="text-lg font-bold text-emerald-400">{riskProbPct}%</span>
+            <span data-testid="risk-score-badge" className="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 font-semibold flex items-center">
+              <CheckCircle2 className="w-3 h-3 mr-1" /> LOW
+            </span>
+          </div>
+        );
+    }
   };
 
   return (
@@ -75,16 +111,13 @@ export default function ProjectDetail({ project, onBack }) {
             </div>
           </div>
 
-          {/* Delay Risk Score (Placeholder Phase D) */}
+          {/* AI Delay Risk Score (Real Live ML inference) */}
           <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-1">
             <span className="text-xs text-slate-400 flex items-center space-x-1">
-              <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
-              <span>Delay Risk Score</span>
+              <AlertCircle className="w-3.5 h-3.5 text-sky-400" />
+              <span>AI Delay Risk Score</span>
             </span>
-            <div className="flex items-center space-x-2 mt-1">
-              <span className="text-lg font-bold text-emerald-400">12%</span>
-              <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">LOW</span>
-            </div>
+            {renderRiskMetric()}
           </div>
 
           {/* Cost Overrun Forecast (Placeholder Phase E) */}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getProjects, deleteProject } from '../../services/api';
 import ProjectModal from './ProjectModal';
-import { Building2, Plus, MapPin, DollarSign, Calendar, ShieldCheck, Edit3, Trash2, ChevronRight, AlertTriangle } from 'lucide-react';
+import { Building2, Plus, MapPin, Calendar, ShieldCheck, Edit3, Trash2, ChevronRight, AlertTriangle, CheckCircle2, AlertOctagon } from 'lucide-react';
 
 export default function ProjectList({ onSelectProject }) {
   const [projects, setProjects] = useState([]);
@@ -58,6 +58,43 @@ export default function ProjectList({ onSelectProject }) {
     }).format(val);
   };
 
+  const renderRiskBadge = (riskData) => {
+    if (!riskData) {
+      return (
+        <span data-testid="risk-score-badge" className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">
+          N/A
+        </span>
+      );
+    }
+
+    const probPct = (riskData.delay_risk_score * 100).toFixed(1);
+    const level = riskData.risk_level || 'LOW';
+
+    switch (level) {
+      case 'HIGH':
+        return (
+          <span data-testid="risk-score-badge" className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20">
+            <AlertOctagon className="w-3 h-3 mr-1" />
+            HIGH ({probPct}%)
+          </span>
+        );
+      case 'MEDIUM':
+        return (
+          <span data-testid="risk-score-badge" className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <AlertTriangle className="w-3 h-3 mr-1" />
+            MEDIUM ({probPct}%)
+          </span>
+        );
+      default:
+        return (
+          <span data-testid="risk-score-badge" className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <CheckCircle2 className="w-3 h-3 mr-1" />
+            LOW ({probPct}%)
+          </span>
+        );
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Bar */}
@@ -68,7 +105,7 @@ export default function ProjectList({ onSelectProject }) {
             <span>Active Construction Projects</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Real-time project tracking, risk status, and milestone progression
+            Real-time project tracking, predictive risk scores, and milestone progression
           </p>
         </div>
 
@@ -182,12 +219,10 @@ export default function ProjectList({ onSelectProject }) {
                   </span>
                 </div>
 
-                {/* Delay Risk Placeholder Card */}
+                {/* Real Live ML Delay Risk Badge */}
                 <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5 flex items-center justify-between text-xs">
-                  <span className="text-slate-400 text-[11px]">Delay Risk Status</span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    LOW (0.12)
-                  </span>
+                  <span className="text-slate-400 text-[11px]">AI Delay Risk</span>
+                  {renderRiskBadge(proj.risk_score)}
                 </div>
               </div>
 
