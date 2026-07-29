@@ -120,13 +120,24 @@ export default function ProjectDetail({ project, onBack }) {
             {renderRiskMetric()}
           </div>
 
-          {/* Cost Overrun Forecast (Placeholder Phase E) */}
+          {/* Cost Overrun Forecast (Real Live ML inference) */}
           <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-1">
             <span className="text-xs text-slate-400 flex items-center space-x-1">
               <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
               <span>Cost Overrun Forecast</span>
             </span>
-            <div className="text-lg font-bold text-purple-400">+2.4% Est.</div>
+            {risk && risk.cost_overrun_pct !== undefined ? (
+              <div>
+                <div data-testid="cost-overrun-badge" className="text-lg font-bold text-purple-400">
+                  +{risk.cost_overrun_pct}% Est.
+                </div>
+                <div className="text-[10px] text-slate-400 mt-0.5">
+                  Est. {formatCurrency(risk.estimated_overrun_ksh || (project.budget_ksh * (risk.cost_overrun_pct / 100)))} overrun
+                </div>
+              </div>
+            ) : (
+              <div className="text-lg font-bold text-slate-500">N/A</div>
+            )}
           </div>
         </div>
       </div>

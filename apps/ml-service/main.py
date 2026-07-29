@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import time
 
-from app.schemas import DelayRiskRequest, DelayRiskResponse
+from app.schemas import DelayRiskRequest, DelayRiskResponse, CostOverrunRequest, CostOverrunResponse
 from app.registry import registry
 
 app = FastAPI(
@@ -46,6 +46,27 @@ def predict_delay_risk(request: DelayRiskRequest):
     return DelayRiskResponse(
         delay_risk_prob=prob,
         risk_level=risk_level,
+        model_version=model_version,
+        timestamp=datetime.utcnow().isoformat()
+    )
+
+@app.post("/predict/cost-overrun", response_model=CostOverrunResponse)
+def predict_cost_overrun(request: CostOverrunRequest):
+    """
+    Predicts construction project cost overrun percentage and financial overrun amount in KSh (FR06/NFR02).
+    Latency target: < 2 seconds.
+    """
+    start_time = time.time()
+
+    pct, amount_ksh, model_version = registry.predict_cost_overrun(request)
+
+    elapsed_time = time.time() - start_time
+    if elapsed_time > 2.0:
+        print(f"[NFR02 Warning] Cost overrun inference latency ({elapsed_time:.3f}s) exceeded 2.0s target!")
+
+    return CostOverrunResponse(
+        cost_overrun_pct=pct,
+        estimated_overrun_ksh=amount_ksh,
         model_version=model_version,
         timestamp=datetime.utcnow().isoformat()
     )

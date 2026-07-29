@@ -219,10 +219,26 @@ export default function ProjectList({ onSelectProject }) {
                   </span>
                 </div>
 
-                {/* Real Live ML Delay Risk Badge */}
-                <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5 flex items-center justify-between text-xs">
-                  <span className="text-slate-400 text-[11px]">AI Delay Risk</span>
-                  {renderRiskBadge(proj.risk_score)}
+                {/* Real Live ML Risk & Cost Overrun Badges */}
+                <div className="bg-slate-950 border border-slate-800 rounded-lg p-2.5 space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 text-[11px]">AI Delay Risk</span>
+                    {renderRiskBadge(proj.risk_score)}
+                  </div>
+                  {proj.risk_score && proj.risk_score.cost_overrun_pct !== undefined && (
+                    <div className="flex items-center justify-between border-t border-slate-800/60 pt-1.5">
+                      <span className="text-slate-400 text-[11px]">Est. Cost Overrun</span>
+                      <span data-testid="cost-overrun-badge" className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${
+                        proj.risk_score.cost_overrun_pct > 10.0
+                          ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          : proj.risk_score.cost_overrun_pct > 3.0
+                          ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                          : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                      }`}>
+                        +{proj.risk_score.cost_overrun_pct}%
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 

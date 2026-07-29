@@ -38,39 +38,49 @@ async function recalculateDelayRisk(projectId) {
       current_delay_days: maxDelayDays
     };
 
-    // 3. Query ML service
-    const prediction = await mlClient.predictDelayRisk(payload);
+    // 3. Query ML service for Delay Risk and Cost Overrun
+    const [delayPrediction, costPrediction] = await Promise.all([
+      mlClient.predictDelayRisk(payload),
+      mlClient.predictCostOverrun(payload)
+    ]);
 
     // 4. Persist to risk_scores DB table
     const scoreId = `RS-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const now = new Date();
+    const costPct = costPrediction.cost_overrun_pct || 0.0;
 
     if (isMemoryMode()) {
       // Memory mode persistence
       await query(
-        `INSERT INTO risk_scores (score_id, project_id, delay_risk_score, risk_level, model_version, calculated_at)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [scoreId, projectId, prediction.delay_risk_prob, prediction.risk_level, prediction.model_version, now]
+        `INSERT INTO risk_scores (score_id, project_id, delay_risk_score, cost_overrun_pct, risk_level, model_version, calculated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [scoreId, projectId, delayPrediction.delay_risk_prob, costPct, delayPrediction.risk_level, delayPrediction.model_version, now]
       );
     } else {
       await query(
-        `INSERT INTO risk_scores (score_id, project_id, delay_risk_score, risk_level, model_version, calculated_at)
-         VALUES ($1, $2, $3, $4, $5, $6)
+        `INSERT INTO risk_scores (score_id, project_id, delay_risk_score, cost_overrun_pct, risk_level, model_version, calculated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
          ON CONFLICT (project_id) DO UPDATE SET
            delay_risk_score = EXCLUDED.delay_risk_score,
+           cost_overrun_pct = EXCLUDED.cost_overrun_pct,
            risk_level = EXCLUDED.risk_level,
            model_version = EXCLUDED.model_version,
            calculated_at = EXCLUDED.calculated_at`,
-        [scoreId, projectId, prediction.delay_risk_prob, prediction.risk_level, prediction.model_version, now]
+        [scoreId, projectId, delayPrediction.delay_risk_prob, costPct, delayPrediction.risk_level, delayPrediction.model_version, now]
       );
     }
+
+    const budgetKsh = parseFloat(project.budget_ksh) || 0.0;
+    const estimatedOverrunKsh = Math.round(budgetKsh * (costPct / 100.0) * 100) / 100;
 
     return {
       score_id: scoreId,
       project_id: projectId,
-      delay_risk_score: prediction.delay_risk_prob,
-      risk_level: prediction.risk_level,
-      model_version: prediction.model_version,
+      delay_risk_score: delayPrediction.delay_risk_prob,
+      cost_overrun_pct: costPct,
+      estimated_overrun_ksh: estimatedOverrunKsh,
+      risk_level: delayPrediction.risk_level,
+      model_version: delayPrediction.model_version,
       calculated_at: now
     };
   } catch (err) {
@@ -81,6 +91,9 @@ async function recalculateDelayRisk(projectId) {
 
 async function getLatestRiskScore(projectId) {
   try {
+    const projResult = await query('SELECT budget_ksh FROM projects WHERE project_id = $1', [projectId]);
+    const budgetKsh = projResult.rows.length > 0 ? parseFloat(projResult.rows[0].budget_ksh) || 0.0 : 0.0;
+
     const result = await query(
       'SELECT * FROM risk_scores WHERE project_id = $1 ORDER BY calculated_at DESC LIMIT 1',
       [projectId]
@@ -88,9 +101,14 @@ async function getLatestRiskScore(projectId) {
 
     if (result.rows.length > 0) {
       const row = result.rows[0];
+      const costPct = row.cost_overrun_pct ? parseFloat(row.cost_overrun_pct) : 0.0;
+      const estimatedOverrunKsh = Math.round(budgetKsh * (costPct / 100.0) * 100) / 100;
+
       return {
         score_id: row.score_id,
         delay_risk_score: parseFloat(row.delay_risk_score),
+        cost_overrun_pct: costPct,
+        estimated_overrun_ksh: estimatedOverrunKsh,
         risk_level: row.risk_level,
         model_version: row.model_version,
         calculated_at: row.calculated_at

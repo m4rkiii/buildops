@@ -203,11 +203,20 @@ const db = {
 
     // RISK SCORES QUERIES
     if (lowerSql.startsWith('insert into risk_scores')) {
-      const [score_id, project_id, delay_risk_score, risk_level, model_version, calculated_at] = params;
+      // Handles both 6-param (legacy) and 7-param queries (including cost_overrun_pct)
+      let score_id, project_id, delay_risk_score, cost_overrun_pct, risk_level, model_version, calculated_at;
+      if (params.length >= 7) {
+        [score_id, project_id, delay_risk_score, cost_overrun_pct, risk_level, model_version, calculated_at] = params;
+      } else {
+        [score_id, project_id, delay_risk_score, risk_level, model_version, calculated_at] = params;
+        cost_overrun_pct = 0.0;
+      }
+
       const newScore = {
         score_id,
         project_id,
         delay_risk_score: parseFloat(delay_risk_score),
+        cost_overrun_pct: parseFloat(cost_overrun_pct || 0),
         risk_level,
         model_version,
         calculated_at: calculated_at || new Date().toISOString()
