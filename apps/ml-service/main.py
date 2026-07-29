@@ -3,12 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import time
 
-from app.schemas import DelayRiskRequest, DelayRiskResponse, CostOverrunRequest, CostOverrunResponse
+from app.schemas import DelayRiskRequest, DelayRiskResponse, CostOverrunRequest, CostOverrunResponse, AIDigestRequest, AIDigestResponse
 from app.registry import registry
+from app.digest_engine import digest_engine
 
 app = FastAPI(
     title="BuildOps Sentinel ML Service",
-    description="Machine Learning service for construction delay risk and cost overrun forecasting",
+    description="Machine Learning service for construction delay risk, cost overrun forecasting, and AI executive digests",
     version="1.0.0"
 )
 
@@ -70,3 +71,19 @@ def predict_cost_overrun(request: CostOverrunRequest):
         model_version=model_version,
         timestamp=datetime.utcnow().isoformat()
     )
+
+@app.post("/predict/ai-digest", response_model=AIDigestResponse)
+def generate_ai_digest(request: AIDigestRequest):
+    """
+    Generates a comprehensive AI Executive Digest report for project stakeholders (FR08/NFR02).
+    Latency target: < 2 seconds.
+    """
+    start_time = time.time()
+
+    digest = digest_engine.generate_digest(request)
+
+    elapsed_time = time.time() - start_time
+    if elapsed_time > 2.0:
+        print(f"[NFR02 Warning] AI Digest generation latency ({elapsed_time:.3f}s) exceeded 2.0s target!")
+
+    return AIDigestResponse(**digest)

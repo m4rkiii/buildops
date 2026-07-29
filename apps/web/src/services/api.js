@@ -105,3 +105,10 @@ export async function getProjectNotifications(projectId) {
   });
   return handleResponse(res);
 }
+
+export async function getProjectDigest(projectId) {
+  const res = await fetch(`${API_BASE_URL}/projects/${projectId}/digest`, {
+    headers: getAuthHeaders()
+  });
+  return handleResponse(res);
+}

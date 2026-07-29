@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import MilestoneList from '../Milestones/MilestoneList';
-import { ArrowLeft, MapPin, DollarSign, Calendar, AlertCircle, CheckCircle2, TrendingUp, AlertOctagon, AlertTriangle } from 'lucide-react';
+import AIDigestModal from '../Reports/AIDigestModal';
+import { ArrowLeft, MapPin, DollarSign, Calendar, AlertCircle, CheckCircle2, TrendingUp, AlertOctagon, AlertTriangle, Cpu } from 'lucide-react';
 
 export default function ProjectDetail({ project, onBack }) {
+  const [isDigestOpen, setIsDigestOpen] = useState(false);
+
   if (!project) return null;
 
   const formatCurrency = (val) => {
@@ -52,13 +55,24 @@ export default function ProjectDetail({ project, onBack }) {
   return (
     <div className="space-y-6">
       {/* Navigation Top Bar */}
-      <button
-        onClick={onBack}
-        className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-400 hover:text-white transition bg-slate-900 border border-slate-800 hover:border-slate-700 px-3 py-1.5 rounded-lg"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Back to Project Dashboard</span>
-      </button>
+      <div className="flex items-center justify-between">
+        <button
+          onClick={onBack}
+          className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-400 hover:text-white transition bg-slate-900 border border-slate-800 hover:border-slate-700 px-3 py-1.5 rounded-lg"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Project Dashboard</span>
+        </button>
+
+        <button
+          onClick={() => setIsDigestOpen(true)}
+          data-testid="generate-digest-btn"
+          className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 shadow-lg shadow-purple-600/20 transition"
+        >
+          <Cpu className="w-4 h-4" />
+          <span>Generate AI Executive Digest</span>
+        </button>
+      </div>
 
       {/* Hero Header Card */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
@@ -144,6 +158,14 @@ export default function ProjectDetail({ project, onBack }) {
 
       {/* Milestone Timeline Component */}
       <MilestoneList projectId={project.project_id} />
+
+      {/* AI Executive Digest Modal */}
+      <AIDigestModal
+        isOpen={isDigestOpen}
+        onClose={() => setIsDigestOpen(false)}
+        projectId={project.project_id}
+        projectName={project.project_name}
+      />
     </div>
   );
 }

@@ -96,6 +96,53 @@ async function predictCostOverrun(payload) {
   }
 }
 
+async function generateAIDigest(payload) {
+  try {
+    const url = new URL('/predict/ai-digest', ML_SERVICE_URL);
+    const bodyData = JSON.stringify(payload);
+
+    return new Promise((resolve) => {
+      const req = http.request(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(bodyData)
+        },
+        timeout: 3000
+      }, (res) => {
+        let rawData = '';
+        res.on('data', chunk => { rawData += chunk; });
+        res.on('end', () => {
+          if (res.statusCode === 200) {
+            try {
+              const parsed = JSON.parse(rawData);
+              resolve(parsed);
+            } catch (e) {
+              resolve(getFallbackDigest(payload));
+            }
+          } else {
+            resolve(getFallbackDigest(payload));
+          }
+        });
+      });
+
+      req.on('error', () => {
+        resolve(getFallbackDigest(payload));
+      });
+
+      req.on('timeout', () => {
+        req.destroy();
+        resolve(getFallbackDigest(payload));
+      });
+
+      req.write(bodyData);
+      req.end();
+    });
+  } catch (err) {
+    return getFallbackDigest(payload);
+  }
+}
+
 function getFallbackDelayPrediction(payload) {
   const delayDays = payload.current_delay_days || 0;
   const duration = payload.planned_duration_days || 365;
@@ -133,7 +180,27 @@ function getFallbackCostPrediction(payload) {
   };
 }
 
+function getFallbackDigest(payload) {
+  const pName = payload.project_name || 'Construction Project';
+  const pType = payload.project_type || 'Commercial';
+  const county = payload.county || 'Nairobi';
+  const budget = payload.budget_ksh || 10000000.0;
+  const delayDays = payload.current_delay_days || 0;
+  const costPct = payload.cost_overrun_pct || 2.5;
+
+  return {
+    executive_summary: `Project '${pName}' (${pType}, ${county}) with valuation KSh ${budget.toLocaleString()} maintains active progress tracking.`,
+    schedule_variance_analysis: delayDays > 0 ? `Project exhibits schedule delay of ${delayDays} days.` : 'Schedule remains on track.',
+    financial_overrun_forecast: `Projected cost overrun is estimated at +${costPct}%.`,
+    key_risk_drivers: [delayDays > 0 ? `Schedule slippage of ${delayDays} days.` : 'Initial stage milestone lead times.'],
+    recommended_mitigations: ['Accelerate critical path milestone delivery', 'Maintain strict cost control audits.'],
+    model_version: 'digest-nlp-v1.0.0-fallback',
+    timestamp: new Date().toISOString()
+  };
+}
+
 module.exports = {
   predictDelayRisk,
-  predictCostOverrun
+  predictCostOverrun,
+  generateAIDigest
 };
