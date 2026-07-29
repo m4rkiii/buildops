@@ -5,6 +5,7 @@ import RegisterForm from './components/Auth/RegisterForm';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import ProjectList from './components/Projects/ProjectList';
 import ProjectDetail from './components/Projects/ProjectDetail';
+import NotificationCenter from './components/Notifications/NotificationCenter';
 import { Shield, Activity, Server, Cpu, CheckCircle2, AlertCircle, LogOut } from 'lucide-react';
 
 function DashboardContent() {
@@ -42,8 +43,9 @@ function DashboardContent() {
           </div>
         </div>
 
-        {/* User Profile / Auth Status Widget */}
+        {/* User Profile & Notification Center */}
         <div className="flex items-center space-x-3">
+          {user && <NotificationCenter />}
           {user ? (
             <div className="flex items-center space-x-3 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5">
               <div className="w-8 h-8 rounded-full bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold text-xs border border-sky-500/20">

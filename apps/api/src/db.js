@@ -241,6 +241,40 @@ const db = {
       return { rows: [...memoryStore.risk_scores] };
     }
 
+    // NOTIFICATIONS QUERIES
+    if (lowerSql.startsWith('insert into notifications')) {
+      const [notification_id, project_id, channel, message, sent_at] = params;
+      const newNotif = {
+        notification_id,
+        project_id,
+        channel: channel || 'SMS',
+        message,
+        sent_at: sent_at || new Date().toISOString()
+      };
+      memoryStore.notifications.push(newNotif);
+      return { rows: [newNotif] };
+    }
+
+    if (lowerSql.includes('from notifications')) {
+      if (lowerSql.includes('project_id = any')) {
+        const projectIds = params[0] || [];
+        const notifs = memoryStore.notifications.filter(n => projectIds.includes(n.project_id));
+        notifs.sort((a, b) => new Date(b.sent_at) - new Date(a.sent_at));
+        return { rows: notifs };
+      }
+
+      if (lowerSql.includes('project_id =')) {
+        const pId = params[0];
+        const notifs = memoryStore.notifications.filter(n => n.project_id === pId);
+        notifs.sort((a, b) => new Date(b.sent_at) - new Date(a.sent_at));
+        return { rows: notifs };
+      }
+
+      const notifs = [...memoryStore.notifications];
+      notifs.sort((a, b) => new Date(b.sent_at) - new Date(a.sent_at));
+      return { rows: notifs };
+    }
+
     return { rows: [] };
   },
 

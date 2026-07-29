@@ -73,7 +73,7 @@ async function recalculateDelayRisk(projectId) {
     const budgetKsh = parseFloat(project.budget_ksh) || 0.0;
     const estimatedOverrunKsh = Math.round(budgetKsh * (costPct / 100.0) * 100) / 100;
 
-    return {
+    const riskResult = {
       score_id: scoreId,
       project_id: projectId,
       delay_risk_score: delayPrediction.delay_risk_prob,
@@ -83,6 +83,16 @@ async function recalculateDelayRisk(projectId) {
       model_version: delayPrediction.model_version,
       calculated_at: now
     };
+
+    // 5. Trigger automated SMS alert evaluation
+    try {
+      const notificationService = require('./notificationService');
+      await notificationService.checkAndDispatchAlerts(projectId, riskResult);
+    } catch (notifErr) {
+      console.warn(`[RiskService Warning] Alert dispatch trigger encountered error: ${notifErr.message}`);
+    }
+
+    return riskResult;
   } catch (err) {
     console.error(`[RiskService Error] Recalculate failed for project ${projectId}:`, err.message);
     return null;

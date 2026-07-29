@@ -90,3 +90,18 @@ export async function deleteMilestone(projectId, milestoneId) {
   });
   return handleResponse(res);
 }
+
+// Notifications API
+export async function getNotifications() {
+  const res = await fetch(`${API_BASE_URL}/notifications`, {
+    headers: getAuthHeaders()
+  });
+  return handleResponse(res);
+}
+
+export async function getProjectNotifications(projectId) {
+  const res = await fetch(`${API_BASE_URL}/notifications/project/${projectId}`, {
+    headers: getAuthHeaders()
+  });
+  return handleResponse(res);
+}
