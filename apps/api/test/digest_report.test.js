@@ -46,12 +46,12 @@ async function runDigestReportTests() {
       full_name: 'NCA Inspector Wanjiku',
       email: `nca_wanjiku_${Date.now()}@buildops.co.ke`,
       password: 'SecurePassword123!',
-      role: 'nca_regulator'
+      role: 'contractor'
     });
 
     assert(regRes.status === 201, 'Registration should return 201');
     token = regRes.body.token;
-    console.log('[PASS] Step 1: User registered as NCA Regulator.');
+    console.log('[PASS] Step 1: User registered as Contractor.');
 
     // 2. Create Project
     const projRes = await makeRequest({

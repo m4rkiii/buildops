@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { getMilestones, updateMilestone, deleteMilestone } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import MilestoneModal from './MilestoneModal';
 import { CheckCircle2, Clock, AlertOctagon, Circle, Plus, Edit3, Trash2, Calendar, AlertCircle } from 'lucide-react';
 
 export default function MilestoneList({ projectId }) {
+  const { user } = useAuth();
   const [milestones, setMilestones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [milestoneToEdit, setMilestoneToEdit] = useState(null);
+
+  const isNcaRegulator = user && user.role === 'nca_regulator';
 
   const fetchMilestones = async () => {
     setLoading(true);
@@ -30,16 +34,19 @@ export default function MilestoneList({ projectId }) {
   }, [projectId]);
 
   const handleAddMilestone = () => {
+    if (isNcaRegulator) return;
     setMilestoneToEdit(null);
     setIsModalOpen(true);
   };
 
   const handleEditMilestone = (milestone) => {
+    if (isNcaRegulator) return;
     setMilestoneToEdit(milestone);
     setIsModalOpen(true);
   };
 
   const handleQuickStatusToggle = async (milestone, newStatus) => {
+    if (isNcaRegulator) return;
     try {
       const today = new Date().toISOString().split('T')[0];
       const payload = {
@@ -54,6 +61,7 @@ export default function MilestoneList({ projectId }) {
   };
 
   const handleDeleteMilestone = async (milestoneId, milestoneName) => {
+    if (isNcaRegulator) return;
     if (window.confirm(`Are you sure you want to delete milestone "${milestoneName}"?`)) {
       try {
         await deleteMilestone(projectId, milestoneId);
@@ -111,14 +119,16 @@ export default function MilestoneList({ projectId }) {
           </p>
         </div>
 
-        <button
-          data-testid="add-milestone-btn"
-          onClick={handleAddMilestone}
-          className="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center justify-center space-x-1.5 shadow-lg shadow-sky-600/20 transition self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Milestone</span>
-        </button>
+        {!isNcaRegulator && (
+          <button
+            data-testid="add-milestone-btn"
+            onClick={handleAddMilestone}
+            className="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center justify-center space-x-1.5 shadow-lg shadow-sky-600/20 transition self-start sm:self-auto"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Milestone</span>
+          </button>
+        )}
       </div>
 
       {error && (
@@ -139,13 +149,15 @@ export default function MilestoneList({ projectId }) {
       ) : milestones.length === 0 ? (
         <div className="bg-slate-950/60 border border-dashed border-slate-800 rounded-xl p-8 text-center space-y-3">
           <p className="text-xs text-slate-400">No milestones recorded for this project yet.</p>
-          <button
-            onClick={handleAddMilestone}
-            className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3.5 py-1.5 rounded-lg inline-flex items-center space-x-1 transition"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Create First Milestone</span>
-          </button>
+          {!isNcaRegulator && (
+            <button
+              onClick={handleAddMilestone}
+              className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3.5 py-1.5 rounded-lg inline-flex items-center space-x-1 transition"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Create First Milestone</span>
+            </button>
+          )}
         </div>
       ) : (
         <div className="relative border-l-2 border-slate-800 ml-4 pl-6 space-y-6">
@@ -171,35 +183,37 @@ export default function MilestoneList({ projectId }) {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center space-x-2 self-start sm:self-center pt-2 sm:pt-0">
-                    {/* Quick Status Select */}
-                    <select
-                      value={m.status}
-                      onChange={(e) => handleQuickStatusToggle(m, e.target.value)}
-                      className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2 py-1 focus:outline-none"
-                    >
-                      <option value="pending">Set Pending</option>
-                      <option value="in_progress">Set In Progress</option>
-                      <option value="completed">Set Completed</option>
-                      <option value="delayed">Set Delayed</option>
-                    </select>
+                  {!isNcaRegulator && (
+                    <div className="flex items-center space-x-2 self-start sm:self-center pt-2 sm:pt-0">
+                      {/* Quick Status Select */}
+                      <select
+                        value={m.status}
+                        onChange={(e) => handleQuickStatusToggle(m, e.target.value)}
+                        className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2 py-1 focus:outline-none"
+                      >
+                        <option value="pending">Set Pending</option>
+                        <option value="in_progress">Set In Progress</option>
+                        <option value="completed">Set Completed</option>
+                        <option value="delayed">Set Delayed</option>
+                      </select>
 
-                    <button
-                      onClick={() => handleEditMilestone(m)}
-                      title="Edit Milestone"
-                      className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
+                      <button
+                        onClick={() => handleEditMilestone(m)}
+                        title="Edit Milestone"
+                        className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
 
-                    <button
-                      onClick={() => handleDeleteMilestone(m.milestone_id, m.milestone_name)}
-                      title="Delete Milestone"
-                      className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                      <button
+                        onClick={() => handleDeleteMilestone(m.milestone_id, m.milestone_name)}
+                        title="Delete Milestone"
+                        className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -208,13 +222,15 @@ export default function MilestoneList({ projectId }) {
       )}
 
       {/* Modal */}
-      <MilestoneModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        projectId={projectId}
-        onSaved={fetchMilestones}
-        milestoneToEdit={milestoneToEdit}
-      />
+      {!isNcaRegulator && (
+        <MilestoneModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          projectId={projectId}
+          onSaved={fetchMilestones}
+          milestoneToEdit={milestoneToEdit}
+        />
+      )}
     </div>
   );
 }

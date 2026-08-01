@@ -45,7 +45,7 @@ async function runProjectTests() {
 
     // 1. Register User A & User B
     const userAPayload = { full_name: 'Alice Builder', email: 'alice@buildops.co.ke', password: 'Password123!', role: 'contractor' };
-    const userBPayload = { full_name: 'Bob Inspector', email: 'bob@buildops.co.ke', password: 'Password123!', role: 'government_officer' };
+    const userBPayload = { full_name: 'Bob Inspector', email: 'bob@buildops.co.ke', password: 'Password123!', role: 'contractor' };
 
     const userARes = await makeRequest(server, { ...baseOptions, path: '/auth/register', method: 'POST' }, userAPayload);
     const userBRes = await makeRequest(server, { ...baseOptions, path: '/auth/register', method: 'POST' }, userBPayload);

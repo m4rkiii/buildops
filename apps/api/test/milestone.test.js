@@ -48,7 +48,7 @@ async function runMilestoneTests() {
       full_name: 'Alice Builder', email: 'alice.m@buildops.co.ke', password: 'Password123!', role: 'contractor'
     });
     const userBRes = await makeRequest(server, { ...baseOptions, path: '/auth/register', method: 'POST' }, {
-      full_name: 'Bob Inspector', email: 'bob.m@buildops.co.ke', password: 'Password123!', role: 'government_officer'
+      full_name: 'Bob Inspector', email: 'bob.m@buildops.co.ke', password: 'Password123!', role: 'contractor'
     });
 
     const tokenA = userARes.body.token;

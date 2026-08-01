@@ -4,28 +4,36 @@ const riskService = require('../services/riskService');
 const VALID_STATUSES = ['pending', 'in_progress', 'completed', 'delayed'];
 
 /**
- * Helper to verify project existence and user ownership
+ * Helper to verify project existence and user access
  */
-async function verifyProjectOwnership(projectId, userId) {
+async function verifyProjectAccess(projectId, user) {
   const projRes = await db.query('SELECT * FROM projects WHERE project_id = $1', [projectId]);
   if (projRes.rows.length === 0) {
     return { error: 'Project not found', status: 404 };
   }
-  if (projRes.rows[0].owner_user_id !== userId) {
+
+  const project = projRes.rows[0];
+  const isRegulator = user && (user.role === 'nca_regulator' || user.role === 'government_officer');
+
+  if (!isRegulator && project.owner_user_id !== user.user_id) {
     return { error: 'Access denied. You do not own this project.', status: 403 };
   }
-  return { project: projRes.rows[0] };
+  return { project };
 }
 
 /**
- * Create milestone under a project (FR03/FR05)
+ * Create milestone under a project (FR03/FR05/FR09)
  */
 async function createMilestone(req, res) {
   try {
+    if (req.user && req.user.role === 'nca_regulator') {
+      return res.status(403).json({ error: 'NCA Regulators have read-only access. Milestone creation is forbidden.' });
+    }
+
     const { projectId } = req.params;
     const { milestone_name, planned_date, actual_date, status } = req.body;
 
-    const check = await verifyProjectOwnership(projectId, req.user.user_id);
+    const check = await verifyProjectAccess(projectId, req.user);
     if (check.error) {
       return res.status(check.status).json({ error: check.error });
     }
@@ -63,13 +71,13 @@ async function createMilestone(req, res) {
 }
 
 /**
- * Get all milestones for a project (FR03)
+ * Get all milestones for a project (FR03/FR09)
  */
 async function getMilestones(req, res) {
   try {
     const { projectId } = req.params;
 
-    const check = await verifyProjectOwnership(projectId, req.user.user_id);
+    const check = await verifyProjectAccess(projectId, req.user);
     if (check.error) {
       return res.status(check.status).json({ error: check.error });
     }
@@ -87,13 +95,13 @@ async function getMilestones(req, res) {
 }
 
 /**
- * Get single milestone by ID
+ * Get single milestone by ID (FR09)
  */
 async function getMilestoneById(req, res) {
   try {
     const { projectId, milestoneId } = req.params;
 
-    const check = await verifyProjectOwnership(projectId, req.user.user_id);
+    const check = await verifyProjectAccess(projectId, req.user);
     if (check.error) {
       return res.status(check.status).json({ error: check.error });
     }
@@ -112,13 +120,17 @@ async function getMilestoneById(req, res) {
 }
 
 /**
- * Update milestone details (FR03/FR05)
+ * Update milestone details (FR03/FR05/FR09)
  */
 async function updateMilestone(req, res) {
   try {
+    if (req.user && req.user.role === 'nca_regulator') {
+      return res.status(403).json({ error: 'NCA Regulators have read-only access. Milestone modification is forbidden.' });
+    }
+
     const { projectId, milestoneId } = req.params;
 
-    const check = await verifyProjectOwnership(projectId, req.user.user_id);
+    const check = await verifyProjectAccess(projectId, req.user);
     if (check.error) {
       return res.status(check.status).json({ error: check.error });
     }
@@ -168,13 +180,17 @@ async function updateMilestone(req, res) {
 }
 
 /**
- * Delete milestone (FR03/FR05)
+ * Delete milestone (FR03/FR05/FR09)
  */
 async function deleteMilestone(req, res) {
   try {
+    if (req.user && req.user.role === 'nca_regulator') {
+      return res.status(403).json({ error: 'NCA Regulators have read-only access. Milestone deletion is forbidden.' });
+    }
+
     const { projectId, milestoneId } = req.params;
 
-    const check = await verifyProjectOwnership(projectId, req.user.user_id);
+    const check = await verifyProjectAccess(projectId, req.user);
     if (check.error) {
       return res.status(check.status).json({ error: check.error });
     }

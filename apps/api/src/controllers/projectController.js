@@ -2,10 +2,15 @@ const db = require('../db');
 const riskService = require('../services/riskService');
 
 /**
- * Create a new construction project (FR02)
+ * Create a new construction project (FR02/FR09)
  */
 async function createProject(req, res) {
   try {
+    // Read-only role check for NCA Regulator
+    if (req.user && req.user.role === 'nca_regulator') {
+      return res.status(403).json({ error: 'NCA Regulators have read-only access. Project creation is forbidden.' });
+    }
+
     const {
       project_name,
       project_type,
@@ -62,14 +67,22 @@ async function createProject(req, res) {
 }
 
 /**
- * Get all projects owned by the authenticated user (FR02/FR05)
+ * Get projects (FR02/FR05/FR09).
+ * Returns all platform projects for nca_regulator and government_officer, or user-owned projects for contractors/supervisors.
  */
 async function getProjects(req, res) {
   try {
-    const projectsRes = await db.query(
-      'SELECT * FROM projects WHERE owner_user_id = $1 ORDER BY created_at DESC',
-      [req.user.user_id]
-    );
+    const isRegulator = req.user && (req.user.role === 'nca_regulator' || req.user.role === 'government_officer');
+    
+    let projectsRes;
+    if (isRegulator) {
+      projectsRes = await db.query('SELECT * FROM projects ORDER BY created_at DESC');
+    } else {
+      projectsRes = await db.query(
+        'SELECT * FROM projects WHERE owner_user_id = $1 ORDER BY created_at DESC',
+        [req.user.user_id]
+      );
+    }
 
     const enrichedProjects = await Promise.all(
       projectsRes.rows.map(async (p) => {
@@ -92,7 +105,7 @@ async function getProjects(req, res) {
 }
 
 /**
- * Get single project by ID (scoped to owner)
+ * Get single project by ID (FR09: Regulators allowed to inspect any project)
  */
 async function getProjectById(req, res) {
   try {
@@ -105,9 +118,10 @@ async function getProjectById(req, res) {
     }
 
     const project = projectRes.rows[0];
+    const isRegulator = req.user && (req.user.role === 'nca_regulator' || req.user.role === 'government_officer');
 
-    // Ownership Authorization Check
-    if (project.owner_user_id !== req.user.user_id) {
+    // Ownership Authorization Check (bypassed for Regulators)
+    if (!isRegulator && project.owner_user_id !== req.user.user_id) {
       return res.status(403).json({ error: 'Access denied. You do not own this project.' });
     }
 
@@ -129,10 +143,14 @@ async function getProjectById(req, res) {
 }
 
 /**
- * Update project details (scoped to owner)
+ * Update project details (FR09: Forbidden for NCA Regulators)
  */
 async function updateProject(req, res) {
   try {
+    if (req.user && req.user.role === 'nca_regulator') {
+      return res.status(403).json({ error: 'NCA Regulators have read-only access. Project modification is forbidden.' });
+    }
+
     const { id } = req.params;
 
     // Verify Project Ownership
@@ -195,10 +213,14 @@ async function updateProject(req, res) {
 }
 
 /**
- * Delete project (scoped to owner)
+ * Delete project (FR09: Forbidden for NCA Regulators)
  */
 async function deleteProject(req, res) {
   try {
+    if (req.user && req.user.role === 'nca_regulator') {
+      return res.status(403).json({ error: 'NCA Regulators have read-only access. Project deletion is forbidden.' });
+    }
+
     const { id } = req.params;
 
     // Verify Project Ownership
