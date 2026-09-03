@@ -199,8 +199,117 @@ function getFallbackDigest(payload) {
   };
 }
 
+async function checkAnomalies(payload) {
+  try {
+    const url = new URL('/predict/anomaly-check', ML_SERVICE_URL);
+    const bodyData = JSON.stringify(payload);
+
+    return new Promise((resolve) => {
+      const req = http.request(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(bodyData)
+        },
+        timeout: 3000
+      }, (res) => {
+        let rawData = '';
+        res.on('data', chunk => { rawData += chunk; });
+        res.on('end', () => {
+          if (res.statusCode === 200) {
+            try {
+              resolve(JSON.parse(rawData));
+            } catch (e) {
+              resolve(getFallbackAnomalyCheck(payload));
+            }
+          } else {
+            resolve(getFallbackAnomalyCheck(payload));
+          }
+        });
+      });
+
+      req.on('error', () => resolve(getFallbackAnomalyCheck(payload)));
+      req.on('timeout', () => { req.destroy(); resolve(getFallbackAnomalyCheck(payload)); });
+      req.write(bodyData);
+      req.end();
+    });
+  } catch (err) {
+    return getFallbackAnomalyCheck(payload);
+  }
+}
+
+async function forecastSchedule(payload) {
+  try {
+    const url = new URL('/predict/schedule-forecast', ML_SERVICE_URL);
+    const bodyData = JSON.stringify(payload);
+
+    return new Promise((resolve) => {
+      const req = http.request(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(bodyData)
+        },
+        timeout: 3000
+      }, (res) => {
+        let rawData = '';
+        res.on('data', chunk => { rawData += chunk; });
+        res.on('end', () => {
+          if (res.statusCode === 200) {
+            try {
+              resolve(JSON.parse(rawData));
+            } catch (e) {
+              resolve(getFallbackScheduleForecast(payload));
+            }
+          } else {
+            resolve(getFallbackScheduleForecast(payload));
+          }
+        });
+      });
+
+      req.on('error', () => resolve(getFallbackScheduleForecast(payload)));
+      req.on('timeout', () => { req.destroy(); resolve(getFallbackScheduleForecast(payload)); });
+      req.write(bodyData);
+      req.end();
+    });
+  } catch (err) {
+    return getFallbackScheduleForecast(payload);
+  }
+}
+
+function getFallbackAnomalyCheck(payload) {
+  const outliers = [];
+  if (payload.budget_ksh > 10000000000) outliers.append('Extreme budget size');
+  if (payload.current_delay_days > payload.planned_duration_days) outliers.append('Delay exceeds total planned duration');
+  return {
+    is_anomaly: outliers.length > 0,
+    anomaly_score: outliers.length > 0 ? 0.85 : 0.15,
+    detected_outliers: outliers,
+    model_version: 'anomaly-iforest-v1.0.0-fallback',
+    timestamp: new Date().toISOString()
+  };
+}
+
+function getFallbackScheduleForecast(payload) {
+  const delayDays = payload.current_delay_days || 0;
+  const plannedEnd = payload.planned_end_date ? new Date(payload.planned_end_date) : new Date(Date.now() + 180 * 86400000);
+  const projEnd = new Date(plannedEnd.getTime() + delayDays * 86400000);
+
+  return {
+    projected_completion_date: projEnd.toISOString().split('T')[0],
+    estimated_schedule_drift_days: delayDays,
+    confidence_level: payload.completed_milestones_count >= 2 ? 'HIGH' : 'MEDIUM',
+    velocity_rate_milestones_per_month: 0.5,
+    model_version: 'schedule-prophet-v1.0.0-fallback',
+    timestamp: new Date().toISOString()
+  };
+}
+
 module.exports = {
   predictDelayRisk,
   predictCostOverrun,
-  generateAIDigest
+  generateAIDigest,
+  checkAnomalies,
+  forecastSchedule
 };
+

@@ -17,6 +17,9 @@ def test_cost_overrun_endpoint():
         "current_delay_days": 15
     }
 
+    # Warm up TestClient ASGI transport stack before measuring inference latency
+    client.get("/health")
+
     start_time = time.time()
     response = client.post("/predict/cost-overrun", json=payload)
     elapsed_time = time.time() - start_time

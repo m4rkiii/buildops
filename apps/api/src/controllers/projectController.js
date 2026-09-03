@@ -241,10 +241,97 @@ async function deleteProject(req, res) {
   }
 }
 
+/**
+ * Get ML schedule forecast for project (FR10)
+ */
+async function getScheduleForecast(req, res) {
+  try {
+    const { id } = req.params;
+    const projectRes = await db.query('SELECT * FROM projects WHERE project_id = $1', [id]);
+    if (projectRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    const project = projectRes.rows[0];
+    const isRegulator = req.user && (req.user.role === 'nca_regulator' || req.user.role === 'government_officer');
+    if (!isRegulator && project.owner_user_id !== req.user.user_id) {
+      return res.status(403).json({ error: 'Access denied. You do not own this project.' });
+    }
+
+    const msResult = await db.query('SELECT * FROM milestones WHERE project_id = $1', [id]);
+    const milestones = msResult.rows;
+    const completed = milestones.filter(m => m.status === 'completed').length;
+    const delayed = milestones.filter(m => m.status === 'delayed').length;
+    const currentDelayDays = delayed * 14;
+
+    const payload = {
+      planned_start_date: project.planned_start_date,
+      planned_end_date: project.planned_end_date,
+      completed_milestones_count: completed,
+      total_milestones_count: Math.max(milestones.length, 1),
+      current_delay_days: currentDelayDays
+    };
+
+    const mlClient = require('../services/mlClient');
+    const forecast = await mlClient.forecastSchedule(payload);
+    return res.status(200).json({ forecast });
+  } catch (err) {
+    console.error('[Project Error] Forecast schedule failed:', err);
+    return res.status(500).json({ error: 'Internal server error calculating schedule forecast' });
+  }
+}
+
+/**
+ * Get ML anomaly check for project (FR10)
+ */
+async function getAnomalyCheck(req, res) {
+  try {
+    const { id } = req.params;
+    const projectRes = await db.query('SELECT * FROM projects WHERE project_id = $1', [id]);
+    if (projectRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    const project = projectRes.rows[0];
+    const isRegulator = req.user && (req.user.role === 'nca_regulator' || req.user.role === 'government_officer');
+    if (!isRegulator && project.owner_user_id !== req.user.user_id) {
+      return res.status(403).json({ error: 'Access denied. You do not own this project.' });
+    }
+
+    const msResult = await db.query('SELECT * FROM milestones WHERE project_id = $1', [id]);
+    const milestones = msResult.rows;
+    const completed = milestones.filter(m => m.status === 'completed').length;
+    const delayed = milestones.filter(m => m.status === 'delayed').length;
+
+    const startDate = new Date(project.planned_start_date || Date.now());
+    const endDate = new Date(project.planned_end_date || Date.now() + 180 * 86400000);
+    const durationDays = Math.max(Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)), 30);
+
+    const payload = {
+      project_type: project.project_type || 'Commercial',
+      county: project.county || 'Nairobi',
+      nca_contractor_grade: project.nca_contractor_grade || 'NCA 1',
+      budget_ksh: parseFloat(project.budget_ksh) || 10000000.0,
+      planned_duration_days: durationDays,
+      completed_milestones_count: completed,
+      total_milestones_count: Math.max(milestones.length, 1),
+      current_delay_days: delayed * 14
+    };
+
+    const mlClient = require('../services/mlClient');
+    const anomaly = await mlClient.checkAnomalies(payload);
+    return res.status(200).json({ anomaly });
+  } catch (err) {
+    console.error('[Project Error] Anomaly check failed:', err);
+    return res.status(500).json({ error: 'Internal server error checking anomalies' });
+  }
+}
+
 module.exports = {
   createProject,
   getProjects,
   getProjectById,
   updateProject,
-  deleteProject
+  deleteProject,
+  getScheduleForecast,
+  getAnomalyCheck
 };
+

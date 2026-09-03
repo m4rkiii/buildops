@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import MilestoneList from '../Milestones/MilestoneList';
 import AIDigestModal from '../Reports/AIDigestModal';
+import ScheduleForecastCard from './ScheduleForecastCard';
+import AnomalyBadge from './AnomalyBadge';
 import { ArrowLeft, MapPin, DollarSign, Calendar, AlertCircle, CheckCircle2, TrendingUp, AlertOctagon, AlertTriangle, Cpu } from 'lucide-react';
 
-export default function ProjectDetail({ project, onBack }) {
+export default function ProjectDetail({ project, onBack, token }) {
   const [isDigestOpen, setIsDigestOpen] = useState(false);
+  const authToken = token || localStorage.getItem('token');
 
   if (!project) return null;
 
@@ -74,6 +77,9 @@ export default function ProjectDetail({ project, onBack }) {
         </button>
       </div>
 
+      {/* Anomaly Warning Banner (If metrics contain outliers) */}
+      <AnomalyBadge projectId={project.project_id} token={authToken} />
+
       {/* Hero Header Card */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
@@ -125,11 +131,11 @@ export default function ProjectDetail({ project, onBack }) {
             </div>
           </div>
 
-          {/* AI Delay Risk Score (Real Live ML inference) */}
+          {/* AI Delay Risk Score (Ensemble ML inference) */}
           <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-1">
             <span className="text-xs text-slate-400 flex items-center space-x-1">
               <AlertCircle className="w-3.5 h-3.5 text-sky-400" />
-              <span>AI Delay Risk Score</span>
+              <span>AI Ensemble Risk Score</span>
             </span>
             {renderRiskMetric()}
           </div>
@@ -155,6 +161,9 @@ export default function ProjectDetail({ project, onBack }) {
           </div>
         </div>
       </div>
+
+      {/* Schedule Forecast Card (ML) */}
+      <ScheduleForecastCard projectId={project.project_id} token={authToken} />
 
       {/* Milestone Timeline Component */}
       <MilestoneList projectId={project.project_id} />

@@ -19,6 +19,12 @@ try {
   console.log('\n--- Running E2E Backend Pass (Sprint B4) ---');
   execSync('node test/e2e_backend.test.js', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
 
+  console.log('\n--- Running Role-Based NCA Regulator Access Tests (Sprint H1) ---');
+  execSync('node test/nca_role.test.js', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
+
+  console.log('\n--- Running Phase I Secondary ML API Tests ---');
+  execSync('node test/phase_i_ml.test.js', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
+
   console.log('\n✅ All API test suites passed cleanly!');
 } catch (err) {
   console.error('\n❌ API Test Suite Execution Failed:', err.message);

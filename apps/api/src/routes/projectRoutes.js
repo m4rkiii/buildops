@@ -15,8 +15,11 @@ router.use('/:projectId/milestones', milestoneRoutes);
 router.post('/', projectController.createProject);
 router.get('/', projectController.getProjects);
 router.get('/:projectId/digest', digestController.getProjectDigest);
+router.get('/:id/schedule-forecast', projectController.getScheduleForecast);
+router.get('/:id/anomaly-check', projectController.getAnomalyCheck);
 router.get('/:id', projectController.getProjectById);
 router.put('/:id', projectController.updateProject);
 router.delete('/:id', projectController.deleteProject);
 
 module.exports = router;
+
