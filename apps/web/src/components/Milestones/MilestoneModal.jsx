@@ -68,25 +68,25 @@ export default function MilestoneModal({ isOpen, onClose, projectId, onSaved, mi
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative">
+    <div className="fixed inset-0 z-50 bg-[#0B2318]/85 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="card-aserre rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-          <div className="flex items-center space-x-2.5">
-            <div className="p-2 bg-sky-500/10 text-sky-400 rounded-lg">
+        <div className="flex items-center justify-between border-b border-[#D7B66D]/20 pb-4">
+          <div className="flex items-center space-x-3">
+            <div className="p-2.5 bg-[#D7B66D]/15 text-[#D7B66D] rounded-xl border border-[#D7B66D]/30">
               <CheckSquare className="w-5 h-5" />
             </div>
-            <h2 className="text-xl font-bold text-white">
+            <h2 className="text-xl font-bold font-serif-luxury text-white tracking-tight">
               {milestoneToEdit ? 'Edit Milestone' : 'Add Project Milestone'}
             </h2>
           </div>
-          <button onClick={onClose} className="p-1 text-slate-400 hover:text-white rounded-lg transition">
+          <button onClick={onClose} className="p-1.5 text-[#8FA399] hover:text-white rounded-xl transition">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex items-start space-x-2 text-red-400 text-xs">
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start space-x-2 text-red-400 text-xs">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -95,78 +95,78 @@ export default function MilestoneModal({ isOpen, onClose, projectId, onSaved, mi
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Milestone Name */}
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Milestone Name *</label>
+            <label className="block text-xs font-semibold text-[#D7B66D] uppercase tracking-wider mb-1.5">Milestone Name *</label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Foundation Slab & Columns Pouring"
-              className="w-full bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none"
+              className="w-full bg-[#0B2318] border border-[#D7B66D]/30 focus:border-[#D7B66D] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-[#8FA399]/60 focus:outline-none"
             />
           </div>
 
           {/* Planned & Actual Dates */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Planned Date *</label>
+              <label className="block text-xs font-semibold text-[#D7B66D] uppercase tracking-wider mb-1.5">Planned Date *</label>
               <input
                 type="date"
                 required
                 value={plannedDate}
                 onChange={(e) => setPlannedDate(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-lg px-3 py-2 text-sm text-white focus:outline-none"
+                className="w-full bg-[#0B2318] border border-[#D7B66D]/30 focus:border-[#D7B66D] rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Actual Completion Date</label>
+              <label className="block text-xs font-semibold text-[#D7B66D] uppercase tracking-wider mb-1.5">Actual Completion Date</label>
               <input
                 type="date"
                 value={actualDate}
                 onChange={(e) => setActualDate(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-lg px-3 py-2 text-sm text-white focus:outline-none"
+                className="w-full bg-[#0B2318] border border-[#D7B66D]/30 focus:border-[#D7B66D] rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none"
               />
             </div>
           </div>
 
           {/* Status Options */}
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">Milestone Status</label>
-            <div className="grid grid-cols-2 gap-2">
+            <label className="block text-xs font-semibold text-[#D7B66D] uppercase tracking-wider mb-1.5">Milestone Status</label>
+            <div className="grid grid-cols-2 gap-2.5">
               {STATUS_OPTIONS.map((opt) => (
                 <div
                   key={opt.id}
                   onClick={() => setStatus(opt.id)}
-                  className={`p-2.5 rounded-lg border text-xs font-semibold cursor-pointer transition flex items-center justify-between ${
+                  className={`p-3 rounded-xl border text-xs font-semibold cursor-pointer transition flex items-center justify-between ${
                     status === opt.id
-                      ? 'bg-sky-500/10 border-sky-500 text-sky-400'
-                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                      ? 'bg-[#D7B66D]/15 border-[#D7B66D] text-[#D7B66D]'
+                      : 'bg-[#0B2318] border-[#D7B66D]/20 text-[#8FA399] hover:border-[#D7B66D]/40 hover:text-white'
                   }`}
                 >
                   <span>{opt.label}</span>
-                  {status === opt.id && <span className="w-2 h-2 rounded-full bg-sky-400"></span>}
+                  {status === opt.id && <span className="w-2.5 h-2.5 rounded-full bg-[#D7B66D] shadow-[0_0_8px_rgba(215,182,109,0.8)]"></span>}
                 </div>
               ))}
             </div>
           </div>
 
           {/* Actions */}
-          <div className="pt-2 flex justify-end space-x-3">
+          <div className="pt-3 flex justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-lg transition"
+              className="px-4 py-2.5 bg-[#0B2318] border border-[#D7B66D]/20 hover:border-[#D7B66D]/40 text-[#8FA399] hover:text-white text-xs font-semibold rounded-xl transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white text-sm font-medium rounded-lg shadow-lg shadow-sky-600/20 flex items-center space-x-1.5 transition disabled:opacity-50"
+              className="btn-aserre-gold px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition disabled:opacity-50"
             >
               {submitting ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-[#0B2318] border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <>
                   <Save className="w-4 h-4" />
