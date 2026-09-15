@@ -2,6 +2,108 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+@layer base {
+  :root {
+    --color-aserre-dark: #0B2318;
+    --color-aserre-dark-card: #102A25;
+    --color-aserre-gold: #D7B66D;
+    --color-aserre-gold-light: #F3E5C8;
+    --color-aserre-gold-hover: #C5A059;
+    --color-aserre-cream: #FAF7F2;
+    --color-aserre-muted: #8FA399;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #0B2318;
+    color: #FAF7F2;
+    background-image: 
+      radial-gradient(circle at 100% 0%, rgba(215, 182, 109, 0.04) 0%, transparent 35%),
+      radial-gradient(circle at 0% 100%, rgba(16, 42, 37, 0.3) 0%, transparent 40%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-serif-luxury {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Aserre Glassmorphism & Custom Components */
+.glass-aserre {
+  background: rgba(16, 42, 37, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(215, 182, 109, 0.15);
+}
+
+.glass-header-aserre {
+  background: rgba(11, 35, 24, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(215, 182, 109, 0.2);
+}
+
+.card-aserre {
+  background: #102A25;
+  border: 1px solid rgba(215, 182, 109, 0.18);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-aserre:hover {
+  border-color: rgba(215, 182, 109, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(215, 182, 109, 0.08);
+}
+
+/* Gold Gradient Accents */
+.btn-aserre-gold {
+  background: linear-gradient(135deg, #D7B66D 0%, #C5A059 100%);
+  color: #0B2318;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 14px rgba(215, 182, 109, 0.25);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-aserre-gold:hover {
+  background: linear-gradient(135deg, #E2C47E 0%, #D7B66D 100%);
+  box-shadow: 0 6px 20px rgba(215, 182, 109, 0.4);
+  transform: translateY(-1px);
+}
+
+.badge-aserre-gold {
+  background: rgba(215, 182, 109, 0.12);
+  color: #D7B66D;
+  border: 1px solid rgba(215, 182, 109, 0.3);
+}
+
+.badge-aserre-emerald {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34D399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #FFF0CA 0%, #D7B66D 50%, #C5A059 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0B2318;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(215, 182, 109, 0.25);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(215, 182, 109, 0.45);
 }
