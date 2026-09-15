@@ -43,7 +43,7 @@ function DashboardContent() {
                 BuildOps <span className="text-gold-gradient">Sentinel</span>
               </h1>
               <span className="text-[10px] font-semibold uppercase tracking-widest text-[#D7B66D] bg-[#D7B66D]/10 px-2 py-0.5 rounded border border-[#D7B66D]/20">
-                BY ASERRE
+                PRO PLATFORM
               </span>
             </div>
             <p className="text-xs text-[#8FA399] tracking-wide">Premier Construction Risk Intelligence Platform</p>
@@ -143,7 +143,7 @@ function DashboardContent() {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                     <div className="bg-[#102A25] border border-[#D7B66D]/20 rounded-xl p-3.5 flex items-center justify-between text-xs">
-                      <span className="text-white font-medium">Aserre Web Dashboard</span>
+                      <span className="text-white font-medium">React Web Dashboard</span>
                       <span className="text-emerald-400 font-semibold flex items-center bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                         <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> ONLINE
                       </span>

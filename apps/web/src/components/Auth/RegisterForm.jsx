@@ -167,7 +167,7 @@ export default function RegisterForm({ onSuccess }) {
         ) : (
           <>
             <UserCheck className="w-4 h-4" />
-            <span>Create Aserre Account</span>
+            <span>Create BuildOps Account</span>
           </>
         )}
       </button>

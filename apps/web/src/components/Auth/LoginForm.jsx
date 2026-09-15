@@ -85,7 +85,7 @@ export default function LoginForm({ onSuccess }) {
         ) : (
           <>
             <LogIn className="w-4 h-4" />
-            <span>Sign In to Aserre Platform</span>
+            <span>Sign In to BuildOps</span>
           </>
         )}
       </button>

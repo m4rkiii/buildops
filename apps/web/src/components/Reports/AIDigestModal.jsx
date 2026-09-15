@@ -33,7 +33,7 @@ export default function AIDigestModal({ isOpen, onClose, projectId, projectName 
   const handleCopyText = () => {
     if (!digest) return;
     const reportText = `
-BUILD OPS SENTINEL BY ASERRE — EXECUTIVE AI DIGEST REPORT
+BUILD OPS SENTINEL — EXECUTIVE AI DIGEST REPORT
 Project: ${projectName}
 Timestamp: ${digest.timestamp}
 Model Version: ${digest.model_version}
