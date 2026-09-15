@@ -5,6 +5,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const webhookRoutes = require('./routes/webhookRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,6 +27,7 @@ app.get('/health', (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/projects', projectRoutes);
 app.use('/notifications', notificationRoutes);
+app.use('/api/webhooks', webhookRoutes);
 
 if (require.main === module) {
   app.listen(PORT, () => {

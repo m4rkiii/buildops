@@ -242,3 +242,79 @@ Production Protocol: HTTPS (TLS 1.2+)
 - **Path**: `/projects/:projectId/milestones/:milestoneId`
 - **Auth Required**: Bearer JWT (Project owner required)
 - **Response (200 OK)**: `{ "message": "Milestone deleted successfully", "milestone_id": "..." }`
+
+---
+
+## 4. AI Intelligence & Predictive Endpoints (`/projects/:id/...`)
+
+### 4.1 Get AI Executive Digest Report (FR08)
+- **Method**: `GET`
+- **Path**: `/projects/:projectId/digest`
+- **Auth Required**: Bearer JWT
+- **Response (200 OK)**:
+  ```json
+  {
+    "digest": {
+      "executive_summary": "...",
+      "schedule_variance_analysis": "...",
+      "financial_overrun_forecast": "...",
+      "key_risk_drivers": ["..."],
+      "recommended_mitigations": ["..."],
+      "model_version": "digest-nlp-v1.0.0",
+      "timestamp": "2026-08-01T10:00:00.000Z"
+    }
+  }
+  ```
+
+### 4.2 Get Schedule Forecast (FR10)
+- **Method**: `GET`
+- **Path**: `/projects/:id/schedule-forecast`
+- **Auth Required**: Bearer JWT
+- **Response (200 OK)**:
+  ```json
+  {
+    "forecast": {
+      "projected_completion_date": "2027-12-31",
+      "estimated_schedule_drift_days": 14,
+      "confidence_level": "HIGH",
+      "velocity_rate_milestones_per_month": 0.85,
+      "model_version": "schedule-prophet-v1.0.0",
+      "timestamp": "2026-08-01T10:00:00.000Z"
+    }
+  }
+  ```
+
+### 4.3 Get Parameter Anomaly Check (FR10)
+- **Method**: `GET`
+- **Path**: `/projects/:id/anomaly-check`
+- **Auth Required**: Bearer JWT
+- **Response (200 OK)**:
+  ```json
+  {
+    "anomaly": {
+      "is_anomaly": false,
+      "anomaly_score": 0.15,
+      "detected_outliers": [],
+      "model_version": "anomaly-iforest-v1.0.0",
+      "timestamp": "2026-08-01T10:00:00.000Z"
+    }
+  }
+  ```
+
+---
+
+## 5. Notifications & SMS Alerts (`/notifications`)
+
+### 5.1 Get Notification Log (FR07)
+- **Method**: `GET`
+- **Path**: `/notifications`
+- **Auth Required**: Bearer JWT
+- **Response (200 OK)**: Array of notification objects.
+
+### 5.2 Dispatch Manual SMS Alert (FR04)
+- **Method**: `POST`
+- **Path**: `/notifications/send-sms`
+- **Auth Required**: Bearer JWT
+- **Request Body**: `{ "project_id": "...", "message": "..." }`
+- **Response (200 OK)**: `{ "status": "sent", "channel": "SMS", "message_id": "..." }`
+
