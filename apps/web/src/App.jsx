@@ -3,19 +3,32 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginForm from './components/Auth/LoginForm';
 import RegisterForm from './components/Auth/RegisterForm';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import AuthCallback from './components/Auth/AuthCallback';
+import EmailVerificationBanner from './components/Auth/EmailVerificationBanner';
 import ProjectList from './components/Projects/ProjectList';
 import ProjectDetail from './components/Projects/ProjectDetail';
 import NotificationCenter from './components/Notifications/NotificationCenter';
-import { Shield, Activity, Server, Cpu, CheckCircle2, AlertCircle, LogOut, Crown } from 'lucide-react';
+import { Shield, CheckCircle2, AlertCircle, LogOut, Crown } from 'lucide-react';
 
 function DashboardContent() {
-  const { user, logout } = useAuth();
+  const { user, logout, isSupabaseConfigured, authProvider } = useAuth();
   const [activeAuthTab, setActiveAuthTab] = useState('login');
   const [selectedProject, setSelectedProject] = useState(null);
   const [apiStatus, setApiStatus] = useState('checking');
   const [mlStatus, setMlStatus] = useState('checking');
+  const [isCallbackRoute, setIsCallbackRoute] = useState(
+    window.location.hash.includes('auth-callback') || window.location.search.includes('code=')
+  );
 
   useEffect(() => {
+    const handleHashChange = () => {
+      setIsCallbackRoute(
+        window.location.hash.includes('auth-callback') || window.location.search.includes('code=')
+      );
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+
     // Check API health
     fetch('http://localhost:5000/health')
       .then(res => res.json())
@@ -27,7 +40,17 @@ function DashboardContent() {
       .then(res => res.json())
       .then(data => setMlStatus(data.status === 'ok' ? 'online' : 'error'))
       .catch(() => setMlStatus('offline'));
+
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
+
+  if (isCallbackRoute) {
+    return (
+      <div className="min-h-screen bg-[#0B2318] text-[#FAF7F2] flex flex-col font-sans justify-center">
+        <AuthCallback onComplete={() => setIsCallbackRoute(false)} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0B2318] text-[#FAF7F2] flex flex-col font-sans">
@@ -124,6 +147,7 @@ function DashboardContent() {
         ) : (
           /* Protected Main Dashboard Area */
           <ProtectedRoute>
+            <EmailVerificationBanner />
             {selectedProject ? (
               <ProjectDetail
                 project={selectedProject}
@@ -138,11 +162,19 @@ function DashboardContent() {
                   <h3 className="text-sm font-semibold text-[#8FA399] mb-3 uppercase tracking-wider font-serif-luxury text-[#D7B66D]">
                     System Infrastructure Health
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5">
                     <div className="bg-[#102A25] border border-[#D7B66D]/20 rounded-xl p-3.5 flex items-center justify-between text-xs">
                       <span className="text-white font-medium">React Web Dashboard</span>
                       <span className="text-emerald-400 font-semibold flex items-center bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                         <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> ONLINE
+                      </span>
+                    </div>
+
+                    <div className="bg-[#102A25] border border-[#D7B66D]/20 rounded-xl p-3.5 flex items-center justify-between text-xs">
+                      <span className="text-white font-medium">Supabase Auth Engine</span>
+                      <span className={isSupabaseConfigured ? 'text-emerald-400 font-semibold flex items-center bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20' : 'text-amber-400 font-semibold flex items-center bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20'}>
+                        <Shield className="w-3.5 h-3.5 mr-1" />
+                        {isSupabaseConfigured ? 'READY (PKCE)' : 'HYBRID MOCK'}
                       </span>
                     </div>
 
