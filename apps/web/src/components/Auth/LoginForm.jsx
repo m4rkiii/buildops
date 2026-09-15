@@ -2,12 +2,26 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
 
+const DEMO_ACCOUNTS = [
+  { label: 'Contractor', email: 'contractor@buildops.co.ke' },
+  { label: 'NCA Regulator', email: 'regulator@nca.go.ke' },
+  { label: 'Gov Officer', email: 'officer@infrastructure.go.ke' },
+  { label: 'Supervisor', email: 'supervisor@buildops.co.ke' },
+  { label: 'Homeowner', email: 'homeowner@buildops.co.ke' },
+];
+
 export default function LoginForm({ onSuccess }) {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const fillDemo = (demoEmail) => {
+    setEmail(demoEmail);
+    setPassword('Password123!');
+    setError(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,6 +45,25 @@ export default function LoginForm({ onSuccess }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+      {/* Quick Demo Fill Pills */}
+      <div>
+        <label className="block text-[11px] font-semibold text-[#8FA399] uppercase tracking-wider mb-1.5">
+          Quick Demo Autofill
+        </label>
+        <div className="flex flex-wrap gap-1.5">
+          {DEMO_ACCOUNTS.map((acc) => (
+            <button
+              key={acc.email}
+              type="button"
+              onClick={() => fillDemo(acc.email)}
+              className="px-2.5 py-1 text-[11px] font-medium bg-[#0B2318] hover:bg-[#D7B66D]/10 text-[#D7B66D] border border-[#D7B66D]/30 hover:border-[#D7B66D] rounded-lg transition"
+            >
+              {acc.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {error && (
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start space-x-2 text-red-400 text-xs">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />

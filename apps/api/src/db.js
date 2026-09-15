@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 // In-memory data store for standalone testing when live PostgreSQL is unavailable
@@ -10,6 +11,149 @@ const memoryStore = {
   risk_scores: [],
   notifications: []
 };
+
+function seedInitialDemoData() {
+  const hash = bcrypt.hashSync('Password123!', 10);
+
+  memoryStore.users = [
+    {
+      user_id: 'demo-contractor-001',
+      full_name: 'Eng. Kamau Maina (Lead Contractor)',
+      email: 'contractor@buildops.co.ke',
+      password_hash: hash,
+      role: 'contractor',
+      phone_number: '+254712345678',
+      created_at: new Date().toISOString()
+    },
+    {
+      user_id: 'demo-regulator-002',
+      full_name: 'Officer Njeri Wanjiku (NCA Regulator)',
+      email: 'regulator@nca.go.ke',
+      password_hash: hash,
+      role: 'nca_regulator',
+      phone_number: '+254722998877',
+      created_at: new Date().toISOString()
+    },
+    {
+      user_id: 'demo-officer-003',
+      full_name: 'Hon. Otieno Omondi (Gov Officer)',
+      email: 'officer@infrastructure.go.ke',
+      password_hash: hash,
+      role: 'government_officer',
+      phone_number: '+254733445566',
+      created_at: new Date().toISOString()
+    },
+    {
+      user_id: 'demo-supervisor-004',
+      full_name: 'Supervisor Hassan Ali',
+      email: 'supervisor@buildops.co.ke',
+      password_hash: hash,
+      role: 'site_supervisor',
+      phone_number: '+254700112233',
+      created_at: new Date().toISOString()
+    },
+    {
+      user_id: 'demo-homeowner-005',
+      full_name: 'Dr. Grace Mutua',
+      email: 'homeowner@buildops.co.ke',
+      password_hash: hash,
+      role: 'homeowner',
+      phone_number: '+254788554433',
+      created_at: new Date().toISOString()
+    }
+  ];
+
+  memoryStore.projects = [
+    {
+      project_id: 'proj-001-nairobi-tower',
+      owner_user_id: 'demo-contractor-001',
+      project_name: 'Nairobi High-Rise Commercial Tower',
+      project_type: 'Commercial',
+      county: 'Nairobi',
+      nca_contractor_grade: 'NCA 1',
+      budget_ksh: 450000000.0,
+      planned_start_date: '2026-01-15',
+      planned_end_date: '2027-12-31',
+      created_at: new Date().toISOString()
+    },
+    {
+      project_id: 'proj-002-mombasa-bridge',
+      owner_user_id: 'demo-contractor-001',
+      project_name: 'Mombasa Bypass Interchange & Coastal Civil Works',
+      project_type: 'Infrastructure',
+      county: 'Mombasa',
+      nca_contractor_grade: 'NCA 1',
+      budget_ksh: 850000000.0,
+      planned_start_date: '2026-03-01',
+      planned_end_date: '2028-06-30',
+      created_at: new Date().toISOString()
+    }
+  ];
+
+  memoryStore.milestones = [
+    {
+      milestone_id: 'm1-foundation',
+      project_id: 'proj-001-nairobi-tower',
+      milestone_name: 'Site Excavation & Deep Foundation Piling',
+      planned_date: '2026-03-31',
+      actual_date: '2026-03-28',
+      status: 'completed',
+      created_at: new Date().toISOString()
+    },
+    {
+      milestone_id: 'm2-basement',
+      project_id: 'proj-001-nairobi-tower',
+      milestone_name: 'Substructure Concrete Pouring & Retaining Walls',
+      planned_date: '2026-06-30',
+      actual_date: '2026-07-05',
+      status: 'completed',
+      created_at: new Date().toISOString()
+    },
+    {
+      milestone_id: 'm3-superstructure',
+      project_id: 'proj-001-nairobi-tower',
+      milestone_name: 'Structural Steel Frame & Multi-Story Slab Erection',
+      planned_date: '2026-11-15',
+      actual_date: null,
+      status: 'in_progress',
+      created_at: new Date().toISOString()
+    },
+    {
+      milestone_id: 'm4-facade',
+      project_id: 'proj-001-nairobi-tower',
+      milestone_name: 'Curtain Wall Exterior Glazing & Weatherproofing',
+      planned_date: '2027-04-30',
+      actual_date: null,
+      status: 'pending',
+      created_at: new Date().toISOString()
+    }
+  ];
+
+  memoryStore.risk_scores = [
+    {
+      score_id: 'risk-001',
+      project_id: 'proj-001-nairobi-tower',
+      delay_risk_score: 0.18,
+      cost_overrun_pct: 4.2,
+      risk_level: 'LOW',
+      model_version: 'ensemble-v1.0.0',
+      calculated_at: new Date().toISOString()
+    }
+  ];
+
+  memoryStore.notifications = [
+    {
+      notification_id: 'notif-001',
+      project_id: 'proj-001-nairobi-tower',
+      channel: 'SMS',
+      message: '[BuildOps Sentinel Alert] Substructure Concrete Pouring milestone completed on 2026-07-05.',
+      sent_at: new Date().toISOString()
+    }
+  ];
+}
+
+// Seed on module load
+seedInitialDemoData();
 
 let pool = null;
 let useMemoryStore = false;
@@ -287,11 +431,7 @@ const db = {
   },
 
   resetMemoryStore() {
-    memoryStore.users = [];
-    memoryStore.projects = [];
-    memoryStore.milestones = [];
-    memoryStore.risk_scores = [];
-    memoryStore.notifications = [];
+    seedInitialDemoData();
   }
 };
 
