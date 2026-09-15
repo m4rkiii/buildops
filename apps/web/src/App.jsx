@@ -42,9 +42,6 @@ function DashboardContent() {
               <h1 className="text-2xl font-bold font-serif-luxury tracking-tight text-white">
                 BuildOps <span className="text-gold-gradient">Sentinel</span>
               </h1>
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-[#D7B66D] bg-[#D7B66D]/10 px-2 py-0.5 rounded border border-[#D7B66D]/20">
-                PRO PLATFORM
-              </span>
             </div>
             <p className="text-xs text-[#8FA399] tracking-wide">Premier Construction Risk Intelligence Platform</p>
           </div>
