@@ -119,11 +119,7 @@ function DashboardContent() {
               <ProjectDetail
                 project={selectedProject}
                 onBack={() => setSelectedProject(null)}
-              >
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 text-center text-slate-400 text-sm">
-                  <p>Milestone Timeline & Management view slot (Sprint C3)</p>
-                </div>
-              </ProjectDetail>
+              />
             ) : (
               <div className="space-y-6">
                 <ProjectList onSelectProject={(proj) => setSelectedProject(proj)} />
