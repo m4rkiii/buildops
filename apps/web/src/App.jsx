@@ -29,14 +29,17 @@ function DashboardContent() {
 
     window.addEventListener('hashchange', handleHashChange);
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const ML_BASE_URL = import.meta.env.VITE_ML_BASE_URL || 'http://localhost:8000';
+
     // Check API health
-    fetch('http://localhost:5000/health')
+    fetch(`${API_BASE_URL}/health`)
       .then(res => res.json())
       .then(data => setApiStatus(data.status === 'ok' ? 'online' : 'error'))
       .catch(() => setApiStatus('offline'));
 
     // Check ML Service health
-    fetch('http://localhost:8000/health')
+    fetch(`${ML_BASE_URL}/health`)
       .then(res => res.json())
       .then(data => setMlStatus(data.status === 'ok' ? 'online' : 'error'))
       .catch(() => setMlStatus('offline'));

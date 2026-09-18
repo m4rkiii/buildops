@@ -9,7 +9,8 @@ export default function AnomalyBadge({ projectId, token }) {
     async function fetchAnomaly() {
       try {
         setLoading(true);
-        const res = await fetch(`http://localhost:5000/projects/${projectId}/anomaly-check`, {
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+        const res = await fetch(`${API_BASE_URL}/projects/${projectId}/anomaly-check`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
