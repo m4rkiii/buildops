@@ -30,7 +30,7 @@ app.use('/notifications', notificationRoutes);
 app.use('/api/webhooks', webhookRoutes);
 
 if (require.main === module) {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`[BuildOps API] Server running on port ${PORT}`);
   });
 }
