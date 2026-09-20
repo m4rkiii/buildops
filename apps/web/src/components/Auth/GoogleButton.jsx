@@ -47,8 +47,8 @@ export default function GoogleButton({ label = "Sign in with Google", className 
       <button
         type="button"
         onClick={handleGoogleClick}
-        disabled={loading}
-        className={`w-full bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 font-medium py-2.5 px-4 rounded-xl flex items-center justify-center space-x-3 text-xs tracking-wide transition shadow-sm disabled:opacity-60 disabled:cursor-not-allowed ${className}`}
+        disabled={loading || !isSupabaseConfigured}
+        className={`w-full bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 font-medium py-2.5 px-4 rounded-xl flex items-center justify-center space-x-3 text-xs tracking-wide transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
       >
         {loading ? (
           <div className="w-4 h-4 border-2 border-gray-800 border-t-transparent rounded-full animate-spin"></div>
