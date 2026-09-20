@@ -24,9 +24,21 @@ export default function GoogleButton({ label = "Sign in with Google", className 
   };
 
   return (
-    <div className="w-full space-y-2">
+    <div className="w-full space-y-3">
+      {!isSupabaseConfigured && (
+        <div className="bg-amber-500/10 border border-amber-500/25 rounded-xl p-3.5 text-left text-xs text-amber-300 space-y-1">
+          <div className="font-semibold text-amber-200 flex items-center space-x-1.5">
+            <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
+            <span>Supabase Credentials Required</span>
+          </div>
+          <p className="text-[11px] text-amber-300/80 leading-relaxed">
+            Set <code className="bg-black/30 px-1 py-0.5 rounded text-amber-200">VITE_SUPABASE_URL</code> and <code className="bg-black/30 px-1 py-0.5 rounded text-amber-200">VITE_SUPABASE_ANON_KEY</code> in Render Environment Variables, then click <strong>Clear Build Cache & Deploy</strong>.
+          </p>
+        </div>
+      )}
+
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start space-x-2 text-red-400 text-xs">
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start space-x-2 text-red-400 text-xs text-left">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
