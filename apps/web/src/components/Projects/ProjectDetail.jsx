@@ -3,6 +3,9 @@ import MilestoneList from '../Milestones/MilestoneList';
 import AIDigestModal from '../Reports/AIDigestModal';
 import ScheduleForecastCard from './ScheduleForecastCard';
 import AnomalyBadge from './AnomalyBadge';
+import ScenarioSimulatorCard from './ScenarioSimulatorCard';
+import SCurveChart from './SCurveChart';
+import ExecutivePdfExporter from '../Reports/ExecutivePdfExporter';
 import { ArrowLeft, MapPin, DollarSign, Calendar, AlertCircle, CheckCircle2, TrendingUp, AlertOctagon, AlertTriangle, Cpu, Crown } from 'lucide-react';
 
 export default function ProjectDetail({ project, onBack, token }) {
@@ -58,23 +61,27 @@ export default function ProjectDetail({ project, onBack, token }) {
   return (
     <div className="space-y-6">
       {/* Navigation Top Bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <button
           onClick={onBack}
-          className="inline-flex items-center space-x-2 text-xs font-semibold text-[#8FA399] hover:text-white transition bg-[#102A25] border border-[#D7B66D]/20 hover:border-[#D7B66D]/40 px-4 py-2 rounded-xl shadow-md"
+          className="inline-flex items-center space-x-2 text-xs font-semibold text-[#8FA399] hover:text-white transition bg-[#102A25] border border-[#D7B66D]/20 hover:border-[#D7B66D]/40 px-4 py-2 rounded-xl shadow-md w-fit"
         >
           <ArrowLeft className="w-4 h-4 text-[#D7B66D]" />
           <span>Back to Project Dashboard</span>
         </button>
 
-        <button
-          onClick={() => setIsDigestOpen(true)}
-          data-testid="generate-digest-btn"
-          className="btn-aserre-gold text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center space-x-2 transition"
-        >
-          <Cpu className="w-4 h-4" />
-          <span>Generate AI Executive Digest</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <ExecutivePdfExporter project={project} />
+
+          <button
+            onClick={() => setIsDigestOpen(true)}
+            data-testid="generate-digest-btn"
+            className="btn-aserre-gold text-xs font-semibold px-4 py-2 rounded-xl flex items-center space-x-2 transition shadow-md"
+          >
+            <Cpu className="w-4 h-4" />
+            <span>Generate AI Executive Digest</span>
+          </button>
+        </div>
       </div>
 
       {/* Anomaly Warning Banner (If metrics contain outliers) */}
@@ -161,6 +168,12 @@ export default function ProjectDetail({ project, onBack, token }) {
           </div>
         </div>
       </div>
+
+      {/* Interactive What-If Scenario Simulator & AI Copilot */}
+      <ScenarioSimulatorCard project={project} token={authToken} />
+
+      {/* Financial Cash Flow S-Curve & Burn Trajectory Chart */}
+      <SCurveChart project={project} />
 
       {/* Schedule Forecast Card (ML) */}
       <ScheduleForecastCard projectId={project.project_id} token={authToken} />

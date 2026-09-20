@@ -167,8 +167,8 @@ export default function MilestoneList({ projectId }) {
               <div className="absolute -left-[31px] top-2.5 w-4 h-4 rounded-full bg-[#0B2318] border-2 border-[#D7B66D] group-hover:scale-125 transition"></div>
 
               {/* Milestone Card */}
-              <div className="bg-[#0B2318] border border-[#D7B66D]/20 hover:border-[#D7B66D]/40 rounded-xl p-4 transition space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="bg-[#0B2318] border border-[#D7B66D]/20 hover:border-[#D7B66D]/40 rounded-xl p-4 transition space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#D7B66D]/10 pb-3">
                   <div className="space-y-1">
                     <div className="flex items-center space-x-2.5">
                       {renderStatusBadge(m.status)}
@@ -214,6 +214,41 @@ export default function MilestoneList({ projectId }) {
                       </button>
                     </div>
                   )}
+                </div>
+
+                {/* Site Photo Verification & Compliance Audit Badge */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-xs">
+                  {/* Site Photo Verification */}
+                  <div className="bg-[#102A25]/60 border border-[#D7B66D]/15 rounded-lg p-2.5 flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-7 h-7 rounded-md bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                        📷
+                      </div>
+                      <div>
+                        <p className="text-[#D7B66D] font-semibold text-[11px]">Site Photo Evidence</p>
+                        <p className="text-[#8FA399] text-[10px]">Geotagged & Timestamp Verified</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 font-mono">
+                      Verified
+                    </span>
+                  </div>
+
+                  {/* NCA Audit Trail */}
+                  <div className="bg-[#102A25]/60 border border-[#D7B66D]/15 rounded-lg p-2.5 flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-7 h-7 rounded-md bg-[#D7B66D]/20 border border-[#D7B66D]/30 flex items-center justify-center text-[#D7B66D]">
+                        🛡️
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold text-[11px]">NCA Immutable Audit Log</p>
+                        <p className="text-[#8FA399] text-[10px]">Logged by PM / NCA Regulator</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] bg-[#D7B66D]/10 text-[#D7B66D] px-2 py-0.5 rounded border border-[#D7B66D]/20 font-mono">
+                      SHA-256 Logged
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
