@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
+import GoogleButton from './GoogleButton';
 
 const DEMO_ACCOUNTS = [
   { label: 'Contractor', email: 'contractor@buildops.co.ke' },
@@ -44,7 +45,18 @@ export default function LoginForm({ onSuccess }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+    <div className="space-y-4 pt-2">
+      {/* Google OAuth Authentication */}
+      <GoogleButton label="Sign in with Google" />
+
+      {/* Divider */}
+      <div className="relative flex items-center my-2">
+        <div className="flex-grow border-t border-[#D7B66D]/20"></div>
+        <span className="flex-shrink mx-3 text-[10px] text-[#8FA399] uppercase tracking-wider font-semibold">Or Sign In with Email</span>
+        <div className="flex-grow border-t border-[#D7B66D]/20"></div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
       {/* Quick Demo Fill Pills */}
       <div>
         <label className="block text-[11px] font-semibold text-[#8FA399] uppercase tracking-wider mb-1.5">
@@ -123,5 +135,6 @@ export default function LoginForm({ onSuccess }) {
         )}
       </button>
     </form>
-  );
+  </div>
+);
 }

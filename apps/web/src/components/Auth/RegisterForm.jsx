@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { User, Mail, Lock, Phone, UserCheck, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
+import GoogleButton from './GoogleButton';
 
 const ROLES = [
   { id: 'contractor', label: 'Contractor', desc: 'Manage projects & submit milestones' },
@@ -92,7 +93,18 @@ export default function RegisterForm({ onSuccess }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+    <div className="space-y-4 pt-2">
+      {/* Google OAuth Register/Login */}
+      <GoogleButton label="Sign up with Google" />
+
+      {/* Divider */}
+      <div className="relative flex items-center my-2">
+        <div className="flex-grow border-t border-[#D7B66D]/20"></div>
+        <span className="flex-shrink mx-3 text-[10px] text-[#8FA399] uppercase tracking-wider font-semibold">Or Register with Email</span>
+        <div className="flex-grow border-t border-[#D7B66D]/20"></div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start space-x-2 text-red-400 text-xs">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -212,5 +224,6 @@ export default function RegisterForm({ onSuccess }) {
         )}
       </button>
     </form>
-  );
+  </div>
+);
 }

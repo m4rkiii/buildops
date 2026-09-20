@@ -29,7 +29,8 @@ export function AuthProvider({ children }) {
             const formattedUser = {
               user_id: supabaseUser.id,
               email: supabaseUser.email,
-              full_name: supabaseUser.user_metadata?.full_name || supabaseUser.email.split('@')[0],
+              full_name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email.split('@')[0],
+              avatar_url: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture || null,
               role: supabaseUser.user_metadata?.role || 'contractor',
               phone_number: supabaseUser.user_metadata?.phone_number || null,
               email_confirmed_at: supabaseUser.email_confirmed_at
@@ -77,7 +78,8 @@ export function AuthProvider({ children }) {
         const formattedUser = {
           user_id: supabaseUser.id,
           email: supabaseUser.email,
-          full_name: supabaseUser.user_metadata?.full_name || supabaseUser.email.split('@')[0],
+          full_name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email.split('@')[0],
+          avatar_url: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture || null,
           role: supabaseUser.user_metadata?.role || 'contractor',
           phone_number: supabaseUser.user_metadata?.phone_number || null,
           email_confirmed_at: supabaseUser.email_confirmed_at
@@ -240,6 +242,27 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   };
 
+  // Supabase Google OAuth Flow
+  const signInWithGoogle = async () => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.');
+    }
+    const redirectUrl = `${window.location.origin}/#auth-callback`;
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent'
+        }
+      }
+    });
+
+    if (error) throw error;
+    return data;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -252,6 +275,8 @@ export function AuthProvider({ children }) {
         isSupabaseConfigured,
         signUpWithEmail,
         signInWithPassword,
+        signInWithGoogle,
+        loginWithGoogle: signInWithGoogle,
         signOut,
         login: signInWithPassword,
         register: (data) => signUpWithEmail(data.email, data.password, data),
