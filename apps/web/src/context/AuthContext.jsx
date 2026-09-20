@@ -36,6 +36,7 @@ export function AuthProvider({ children }) {
               email_confirmed_at: supabaseUser.email_confirmed_at
             };
             setUser(formattedUser);
+            localStorage.setItem('buildops_token', currentSession.access_token);
             setIsEmailUnverified(!supabaseUser.email_confirmed_at);
           }
         } catch (err) {
@@ -86,6 +87,7 @@ export function AuthProvider({ children }) {
         };
         setUser(formattedUser);
         setToken(currentSession.access_token);
+        localStorage.setItem('buildops_token', currentSession.access_token);
         setIsEmailUnverified(!supabaseUser.email_confirmed_at);
         setAuthProvider('supabase');
       } else if (event === 'SIGNED_OUT') {
