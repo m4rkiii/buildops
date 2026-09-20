@@ -31,7 +31,7 @@ async function createMilestone(req, res) {
     }
 
     const { projectId } = req.params;
-    const { milestone_name, planned_date, actual_date, status } = req.body;
+    const { milestone_name, planned_date, actual_date, status, photo_url } = req.body;
 
     const check = await verifyProjectAccess(projectId, req.user);
     if (check.error) {
@@ -50,10 +50,10 @@ async function createMilestone(req, res) {
     }
 
     const insertRes = await db.query(
-      `INSERT INTO milestones (project_id, milestone_name, planned_date, actual_date, status)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO milestones (project_id, milestone_name, planned_date, actual_date, status, photo_url)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [projectId, milestone_name.trim(), planned_date, actual_date || null, milestoneStatus]
+      [projectId, milestone_name.trim(), planned_date, actual_date || null, milestoneStatus, photo_url || null]
     );
 
     // Recalculate ML delay risk
@@ -135,7 +135,7 @@ async function updateMilestone(req, res) {
       return res.status(check.status).json({ error: check.error });
     }
 
-    const { milestone_name, planned_date, actual_date, status } = req.body;
+    const { milestone_name, planned_date, actual_date, status, photo_url } = req.body;
 
     if (status && !VALID_STATUSES.includes(status)) {
       return res.status(400).json({
@@ -148,14 +148,16 @@ async function updateMilestone(req, res) {
        SET milestone_name = COALESCE($1, milestone_name),
            planned_date = COALESCE($2, planned_date),
            actual_date = COALESCE($3, actual_date),
-           status = COALESCE($4, status)
-       WHERE milestone_id = $5 AND project_id = $6
+           status = COALESCE($4, status),
+           photo_url = COALESCE($5, photo_url)
+       WHERE milestone_id = $6 AND project_id = $7
        RETURNING *`,
       [
         milestone_name ? milestone_name.trim() : null,
         planned_date || null,
         actual_date !== undefined ? actual_date : null,
         status || null,
+        photo_url !== undefined ? photo_url : null,
         milestoneId,
         projectId
       ]

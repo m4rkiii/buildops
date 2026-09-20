@@ -287,7 +287,7 @@ const db = {
 
     // MILESTONES QUERIES
     if (lowerSql.startsWith('insert into milestones')) {
-      const [project_id, milestone_name, planned_date, actual_date, status] = params;
+      const [project_id, milestone_name, planned_date, actual_date, status, photo_url] = params;
       const newMilestone = {
         milestone_id: crypto.randomUUID(),
         project_id,
@@ -295,6 +295,7 @@ const db = {
         planned_date,
         actual_date: actual_date || null,
         status: status || 'pending',
+        photo_url: photo_url || null,
         created_at: new Date().toISOString()
       };
       memoryStore.milestones.push(newMilestone);
@@ -318,7 +319,7 @@ const db = {
     }
 
     if (lowerSql.startsWith('update milestones')) {
-      const [milestone_name, planned_date, actual_date, status, milestone_id, project_id] = params;
+      const [milestone_name, planned_date, actual_date, status, photo_url, milestone_id, project_id] = params;
       const index = memoryStore.milestones.findIndex(m => m.milestone_id === milestone_id && m.project_id === project_id);
       if (index === -1) {
         return { rows: [] };
@@ -329,7 +330,8 @@ const db = {
         milestone_name: milestone_name || memoryStore.milestones[index].milestone_name,
         planned_date: planned_date || memoryStore.milestones[index].planned_date,
         actual_date: actual_date !== undefined ? actual_date : memoryStore.milestones[index].actual_date,
-        status: status || memoryStore.milestones[index].status
+        status: status || memoryStore.milestones[index].status,
+        photo_url: photo_url !== undefined ? photo_url : memoryStore.milestones[index].photo_url
       };
 
       return { rows: [memoryStore.milestones[index]] };

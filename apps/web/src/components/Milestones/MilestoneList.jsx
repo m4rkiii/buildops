@@ -11,6 +11,7 @@ export default function MilestoneList({ projectId }) {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [milestoneToEdit, setMilestoneToEdit] = useState(null);
+  const [activePhotoModal, setActivePhotoModal] = useState(null);
 
   const isNcaRegulator = user && user.role === 'nca_regulator';
 
@@ -220,18 +221,39 @@ export default function MilestoneList({ projectId }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-xs">
                   {/* Site Photo Verification */}
                   <div className="bg-[#102A25]/60 border border-[#D7B66D]/15 rounded-lg p-2.5 flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-7 h-7 rounded-md bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                        📷
-                      </div>
-                      <div>
-                        <p className="text-[#D7B66D] font-semibold text-[11px]">Site Photo Evidence</p>
-                        <p className="text-[#8FA399] text-[10px]">Geotagged & Timestamp Verified</p>
+                    <div className="flex items-center space-x-2.5 overflow-hidden">
+                      {m.photo_url ? (
+                        <img
+                          src={m.photo_url}
+                          alt="Site Evidence"
+                          onClick={() => setActivePhotoModal(m)}
+                          className="w-10 h-10 object-cover rounded-md border border-[#D7B66D]/40 cursor-pointer hover:scale-105 transition shrink-0"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-md bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                          📷
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-[#D7B66D] font-semibold text-[11px] truncate">Site Photo Evidence</p>
+                        <p className="text-[#8FA399] text-[10px] truncate">
+                          {m.photo_url ? 'Attached & Geotagged' : 'Timestamp Verified'}
+                        </p>
                       </div>
                     </div>
-                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 font-mono">
-                      Verified
-                    </span>
+                    {m.photo_url ? (
+                      <button
+                        type="button"
+                        onClick={() => setActivePhotoModal(m)}
+                        className="text-[10px] bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 px-2 py-1 rounded border border-emerald-500/40 font-semibold transition shrink-0"
+                      >
+                        View Photo
+                      </button>
+                    ) : (
+                      <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 font-mono shrink-0">
+                        Verified
+                      </span>
+                    )}
                   </div>
 
                   {/* NCA Audit Trail */}
@@ -253,6 +275,50 @@ export default function MilestoneList({ projectId }) {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Photo Lightbox Modal */}
+      {activePhotoModal && (
+        <div className="fixed inset-0 z-50 bg-[#0B2318]/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="card-aserre rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 relative border border-[#D7B66D]/40">
+            <div className="flex items-center justify-between border-b border-[#D7B66D]/20 pb-3">
+              <div>
+                <h3 className="text-lg font-bold font-serif-luxury text-white">
+                  Site Photo Evidence — {activePhotoModal.milestone_name}
+                </h3>
+                <p className="text-xs text-[#8FA399]">
+                  Status: <strong className="text-white capitalize">{activePhotoModal.status}</strong> • Planned: {activePhotoModal.planned_date}
+                </p>
+              </div>
+              <button
+                onClick={() => setActivePhotoModal(null)}
+                className="p-1.5 text-[#8FA399] hover:text-white rounded-xl transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="rounded-xl overflow-hidden border border-[#D7B66D]/30 bg-[#0B2318] flex items-center justify-center max-h-[60vh]">
+              <img
+                src={activePhotoModal.photo_url}
+                alt={activePhotoModal.milestone_name}
+                className="w-full h-full object-contain max-h-[60vh]"
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-xs pt-1">
+              <span className="text-emerald-400 font-mono flex items-center space-x-1">
+                <span>✓ Geotagged Site Photo Verified</span>
+              </span>
+              <button
+                onClick={() => setActivePhotoModal(null)}
+                className="btn-aserre-gold text-xs px-4 py-1.5 rounded-xl font-semibold"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

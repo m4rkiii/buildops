@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createMilestone, updateMilestone } from '../../services/api';
-import { X, CheckSquare, Calendar, AlertCircle, Save } from 'lucide-react';
+import { X, CheckSquare, Calendar, AlertCircle, Save, Camera, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
 
 const STATUS_OPTIONS = [
   { id: 'pending', label: 'Pending', color: 'text-slate-400' },
@@ -14,6 +14,7 @@ export default function MilestoneModal({ isOpen, onClose, projectId, onSaved, mi
   const [plannedDate, setPlannedDate] = useState('');
   const [actualDate, setActualDate] = useState('');
   const [status, setStatus] = useState('pending');
+  const [photoUrl, setPhotoUrl] = useState('');
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -23,16 +24,44 @@ export default function MilestoneModal({ isOpen, onClose, projectId, onSaved, mi
       setPlannedDate(milestoneToEdit.planned_date || '');
       setActualDate(milestoneToEdit.actual_date || '');
       setStatus(milestoneToEdit.status || 'pending');
+      setPhotoUrl(milestoneToEdit.photo_url || '');
     } else {
       setName('');
       setPlannedDate('');
       setActualDate('');
       setStatus('pending');
+      setPhotoUrl('');
     }
     setError(null);
   }, [milestoneToEdit, isOpen]);
 
   if (!isOpen) return null;
+
+  const handlePhotoFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file (.jpg, .jpeg, .png, .webp, .gif).');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Photo file size must be smaller than 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPhotoUrl(reader.result);
+      setError(null);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setPhotoUrl('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,7 +78,8 @@ export default function MilestoneModal({ isOpen, onClose, projectId, onSaved, mi
         milestone_name: name,
         planned_date: plannedDate,
         actual_date: actualDate || null,
-        status
+        status,
+        photo_url: photoUrl || null
       };
 
       if (milestoneToEdit) {
@@ -69,7 +99,7 @@ export default function MilestoneModal({ isOpen, onClose, projectId, onSaved, mi
 
   return (
     <div className="fixed inset-0 z-50 bg-[#0B2318]/85 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="card-aserre rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative">
+      <div className="card-aserre rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#D7B66D]/20 pb-4">
           <div className="flex items-center space-x-3">
@@ -151,8 +181,69 @@ export default function MilestoneModal({ isOpen, onClose, projectId, onSaved, mi
             </div>
           </div>
 
+          {/* Attach Site Photo Evidence Section */}
+          <div>
+            <label className="block text-xs font-semibold text-[#D7B66D] uppercase tracking-wider mb-1.5">
+              Attach Site Photo Evidence (.JPG, .JPEG, .PNG, .WEBP)
+            </label>
+
+            <input
+              type="file"
+              id="milestone-photo-upload"
+              accept="image/*"
+              onChange={handlePhotoFileChange}
+              className="hidden"
+            />
+
+            {photoUrl ? (
+              <div className="bg-[#0B2318] border border-[#D7B66D]/30 rounded-xl p-3 flex items-center justify-between space-x-3">
+                <div className="flex items-center space-x-3 overflow-hidden">
+                  <img
+                    src={photoUrl}
+                    alt="Milestone Evidence Preview"
+                    className="w-14 h-14 object-cover rounded-lg border border-[#D7B66D]/30 shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-white truncate">Site Photo Attached</p>
+                    <p className="text-[10px] text-emerald-400 font-mono">Ready for NCA audit logging</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 shrink-0">
+                  <label
+                    htmlFor="milestone-photo-upload"
+                    className="p-1.5 bg-[#102A25] hover:bg-[#D7B66D]/20 border border-[#D7B66D]/30 text-[#D7B66D] rounded-lg text-xs font-medium cursor-pointer transition flex items-center space-x-1"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Change</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleRemovePhoto}
+                    className="p-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg transition"
+                    title="Remove Photo"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <label
+                htmlFor="milestone-photo-upload"
+                className="border-2 border-dashed border-[#D7B66D]/30 hover:border-[#D7B66D] bg-[#0B2318] rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition space-y-2 group"
+              >
+                <div className="w-10 h-10 rounded-full bg-[#D7B66D]/10 border border-[#D7B66D]/20 group-hover:scale-110 flex items-center justify-center text-[#D7B66D] transition">
+                  <Camera className="w-5 h-5" />
+                </div>
+                <div className="text-center">
+                  <p className="text-xs font-semibold text-white">Click or drag image to attach site photo</p>
+                  <p className="text-[10px] text-[#8FA399] mt-0.5">Supports JPG, JPEG, PNG, WEBP up to 5MB</p>
+                </div>
+              </label>
+            )}
+          </div>
+
           {/* Actions */}
-          <div className="pt-3 flex justify-end space-x-3">
+          <div className="pt-3 flex justify-end space-x-3 border-t border-[#D7B66D]/15">
             <button
               type="button"
               onClick={onClose}
