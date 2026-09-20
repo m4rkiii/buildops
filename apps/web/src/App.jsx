@@ -10,7 +10,7 @@ import NotificationCenter from './components/Notifications/NotificationCenter';
 import { Shield, CheckCircle2, AlertCircle, LogOut, Crown } from 'lucide-react';
 
 function DashboardContent() {
-  const { user, logout } = useAuth();
+  const { user, logout, isSupabaseConfigured } = useAuth();
   const [selectedProject, setSelectedProject] = useState(null);
   const [apiStatus, setApiStatus] = useState('checking');
   const [mlStatus, setMlStatus] = useState('checking');
