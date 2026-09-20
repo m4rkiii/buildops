@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import LoginForm from './components/Auth/LoginForm';
-import RegisterForm from './components/Auth/RegisterForm';
+import GoogleButton from './components/Auth/GoogleButton';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import AuthCallback from './components/Auth/AuthCallback';
 import EmailVerificationBanner from './components/Auth/EmailVerificationBanner';
@@ -11,8 +10,7 @@ import NotificationCenter from './components/Notifications/NotificationCenter';
 import { Shield, CheckCircle2, AlertCircle, LogOut, Crown } from 'lucide-react';
 
 function DashboardContent() {
-  const { user, logout, isSupabaseConfigured, authProvider } = useAuth();
-  const [activeAuthTab, setActiveAuthTab] = useState('login');
+  const { user, logout } = useAuth();
   const [selectedProject, setSelectedProject] = useState(null);
   const [apiStatus, setApiStatus] = useState('checking');
   const [mlStatus, setMlStatus] = useState('checking');
@@ -78,9 +76,17 @@ function DashboardContent() {
           {user && <NotificationCenter />}
           {user ? (
             <div className="flex items-center space-x-3 bg-[#102A25] border border-[#D7B66D]/25 rounded-xl px-3.5 py-1.5 shadow-md">
-              <div className="w-8 h-8 rounded-full bg-[#D7B66D]/15 text-[#D7B66D] flex items-center justify-center font-bold text-xs border border-[#D7B66D]/30 font-serif-luxury">
-                {user.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
-              </div>
+              {user.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt={user.full_name}
+                  className="w-8 h-8 rounded-full border border-[#D7B66D]/30 object-cover shrink-0"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-[#D7B66D]/15 text-[#D7B66D] flex items-center justify-center font-bold text-xs border border-[#D7B66D]/30 font-serif-luxury shrink-0">
+                  {user.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
+                </div>
+              )}
               <div className="text-left hidden sm:block">
                 <div className="text-xs font-semibold text-white">{user.full_name}</div>
                 <div className="text-[10px] text-[#D7B66D] uppercase tracking-wider font-semibold">{user.role}</div>
@@ -104,48 +110,28 @@ function DashboardContent() {
       {/* Main Content */}
       <main className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
         {!user ? (
-          /* Aserre Auth Form Card */
-          <div className="max-w-md mx-auto card-aserre rounded-2xl p-7 space-y-6 my-10 shadow-2xl">
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 bg-[#D7B66D]/10 rounded-2xl mx-auto flex items-center justify-center border border-[#D7B66D]/30 mb-2">
-                <Crown className="w-6 h-6 text-[#D7B66D]" />
+          /* Google Authentication Only Card */
+          <div className="max-w-md mx-auto card-aserre rounded-2xl p-8 space-y-6 my-12 shadow-2xl text-center">
+            <div className="space-y-3">
+              <div className="w-14 h-14 bg-[#D7B66D]/15 rounded-2xl mx-auto flex items-center justify-center border border-[#D7B66D]/30 mb-3 shadow-lg">
+                <Crown className="w-7 h-7 text-[#D7B66D]" />
               </div>
               <h2 className="text-3xl font-bold text-white font-serif-luxury tracking-tight">
                 Welcome to <span className="text-gold-gradient">BuildOps</span>
               </h2>
-              <p className="text-xs text-[#8FA399]">Sign in to access AI predictive risk analytics & decision support</p>
+              <p className="text-xs text-[#8FA399] leading-relaxed">
+                Sign in with your Google account to access AI predictive risk analytics & decision support.
+              </p>
             </div>
 
-            {/* Aserre Tabs Header */}
-            <div className="flex border-b border-[#D7B66D]/20">
-              <button
-                onClick={() => setActiveAuthTab('login')}
-                className={`flex-1 py-3 text-xs font-semibold text-center border-b-2 transition ${
-                  activeAuthTab === 'login'
-                    ? 'border-[#D7B66D] text-[#D7B66D] font-bold'
-                    : 'border-transparent text-[#8FA399] hover:text-white'
-                }`}
-              >
-                Sign In
-              </button>
-              <button
-                onClick={() => setActiveAuthTab('register')}
-                className={`flex-1 py-3 text-xs font-semibold text-center border-b-2 transition ${
-                  activeAuthTab === 'register'
-                    ? 'border-[#D7B66D] text-[#D7B66D] font-bold'
-                    : 'border-transparent text-[#8FA399] hover:text-white'
-                }`}
-              >
-                Create Account
-              </button>
+            {/* Google OAuth Login Button */}
+            <div className="pt-2">
+              <GoogleButton label="Continue with Google" />
             </div>
 
-            {/* Tab Form Content */}
-            {activeAuthTab === 'login' ? (
-              <LoginForm />
-            ) : (
-              <RegisterForm onSuccess={() => setActiveAuthTab('login')} />
-            )}
+            <div className="pt-2 text-[11px] text-[#8FA399]/70 border-t border-[#D7B66D]/15">
+              Secure authentication powered by Google OAuth & Supabase Security
+            </div>
           </div>
         ) : (
           /* Protected Main Dashboard Area */
