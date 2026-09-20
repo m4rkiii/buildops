@@ -190,9 +190,9 @@ function DashboardContent() {
         )}
       </main>
 
-      {/* Aserre Footer */}
+      {/* Footer */}
       <footer className="border-t border-[#D7B66D]/20 px-6 py-5 text-center text-xs text-[#8FA399]">
-        BuildOps Sentinel &copy; 2026 — Premier Real Estate & Construction Risk Intelligence Platform
+        BuildOps Construction Ltd
       </footer>
     </div>
   );
