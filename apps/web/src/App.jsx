@@ -27,7 +27,7 @@ function DashboardContent() {
 
     window.addEventListener('hashchange', handleHashChange);
 
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://buildops-api-33fl.onrender.com';
     const ML_BASE_URL = import.meta.env.VITE_ML_BASE_URL || 'http://localhost:8000';
 
     // Check API health

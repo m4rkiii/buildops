@@ -9,7 +9,7 @@ export default function AnomalyBadge({ projectId, token }) {
     async function fetchAnomaly() {
       try {
         setLoading(true);
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://buildops-api-33fl.onrender.com';
         const res = await fetch(`${API_BASE_URL}/projects/${projectId}/anomaly-check`, {
           headers: {
             'Authorization': `Bearer ${token}`

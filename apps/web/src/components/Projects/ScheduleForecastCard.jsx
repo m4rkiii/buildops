@@ -10,7 +10,7 @@ export default function ScheduleForecastCard({ projectId, token }) {
     async function fetchForecast() {
       try {
         setLoading(true);
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://buildops-api-33fl.onrender.com';
         const res = await fetch(`${API_BASE_URL}/projects/${projectId}/schedule-forecast`, {
           headers: {
             'Authorization': `Bearer ${token}`
