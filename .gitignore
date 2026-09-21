@@ -22,3 +22,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Local Data
+apps/api/data/*.json

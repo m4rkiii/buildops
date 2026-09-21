@@ -36,11 +36,47 @@ async function safeFetch(url, options = {}) {
   }
 }
 
+// Local Storage Cache Helpers
+function getCachedProjects() {
+  try {
+    const raw = localStorage.getItem('buildops_cached_projects');
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCachedProjects(projects) {
+  try {
+    localStorage.setItem('buildops_cached_projects', JSON.stringify(projects));
+  } catch {
+    // Ignore quota errors
+  }
+}
+
 // Projects API
 export async function getProjects() {
-  return safeFetch(`${API_BASE_URL}/projects`, {
-    headers: getAuthHeaders()
-  });
+  try {
+    const data = await safeFetch(`${API_BASE_URL}/projects`, {
+      headers: getAuthHeaders()
+    });
+    if (data && Array.isArray(data.projects)) {
+      const cached = getCachedProjects();
+      const backendIds = new Set(data.projects.map(p => p.project_id));
+      const localOnly = cached.filter(p => p && p.project_id && !backendIds.has(p.project_id));
+      const merged = [...data.projects, ...localOnly];
+      saveCachedProjects(merged);
+      return { projects: merged };
+    }
+    return data;
+  } catch (err) {
+    const cached = getCachedProjects();
+    if (cached.length > 0) {
+      console.warn('[API Cache Warning] Serving cached projects due to error:', err.message);
+      return { projects: cached, isOffline: true };
+    }
+    throw err;
+  }
 }
 
 export async function getProjectById(id) {
@@ -50,26 +86,39 @@ export async function getProjectById(id) {
 }
 
 export async function createProject(projectData) {
-  return safeFetch(`${API_BASE_URL}/projects`, {
+  const result = await safeFetch(`${API_BASE_URL}/projects`, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify(projectData)
   });
+  if (result && result.project) {
+    const cached = getCachedProjects();
+    saveCachedProjects([result.project, ...cached]);
+  }
+  return result;
 }
 
 export async function updateProject(id, projectData) {
-  return safeFetch(`${API_BASE_URL}/projects/${id}`, {
+  const result = await safeFetch(`${API_BASE_URL}/projects/${id}`, {
     method: 'PUT',
     headers: getAuthHeaders(),
     body: JSON.stringify(projectData)
   });
+  if (result && result.project) {
+    const cached = getCachedProjects().map(p => p.project_id === id ? { ...p, ...result.project } : p);
+    saveCachedProjects(cached);
+  }
+  return result;
 }
 
 export async function deleteProject(id) {
-  return safeFetch(`${API_BASE_URL}/projects/${id}`, {
+  const result = await safeFetch(`${API_BASE_URL}/projects/${id}`, {
     method: 'DELETE',
     headers: getAuthHeaders()
   });
+  const cached = getCachedProjects().filter(p => p && p.project_id !== id);
+  saveCachedProjects(cached);
+  return result;
 }
 
 // Milestones API

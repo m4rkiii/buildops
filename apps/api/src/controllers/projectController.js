@@ -82,6 +82,14 @@ async function getProjects(req, res) {
         'SELECT * FROM projects WHERE owner_user_id = $1 ORDER BY created_at DESC',
         [req.user.user_id]
       );
+      if (!projectsRes.rows || projectsRes.rows.length === 0) {
+        // Fallback: Include platform demo projects so new accounts always have sample active projects
+        const demoRes = await db.query(
+          'SELECT * FROM projects WHERE owner_user_id = $1 ORDER BY created_at DESC',
+          ['demo-contractor-001']
+        );
+        projectsRes = demoRes;
+      }
     }
 
     const enrichedProjects = await Promise.all(

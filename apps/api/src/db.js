@@ -1,7 +1,11 @@
 const { Pool } = require('pg');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
+
+const STORE_FILE_PATH = path.join(__dirname, '..', 'data', 'store.json');
 
 // In-memory data store for standalone testing when live PostgreSQL is unavailable
 const memoryStore = {
@@ -152,8 +156,64 @@ function seedInitialDemoData() {
   ];
 }
 
-// Seed on module load
-seedInitialDemoData();
+function saveMemoryStoreToDisk() {
+  try {
+    const dir = path.dirname(STORE_FILE_PATH);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(STORE_FILE_PATH, JSON.stringify(memoryStore, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[DB Error] Failed to persist memoryStore to disk:', err.message);
+  }
+}
+
+function loadMemoryStoreFromDisk() {
+  seedInitialDemoData();
+  try {
+    if (fs.existsSync(STORE_FILE_PATH)) {
+      const data = fs.readFileSync(STORE_FILE_PATH, 'utf8');
+      const saved = JSON.parse(data);
+      if (saved) {
+        if (Array.isArray(saved.users) && saved.users.length > 0) {
+          const existingIds = new Set(memoryStore.users.map(u => u.user_id));
+          saved.users.forEach(u => {
+            if (!existingIds.has(u.user_id)) memoryStore.users.push(u);
+          });
+        }
+        if (Array.isArray(saved.projects) && saved.projects.length > 0) {
+          const existingIds = new Set(memoryStore.projects.map(p => p.project_id));
+          saved.projects.forEach(p => {
+            if (!existingIds.has(p.project_id)) memoryStore.projects.push(p);
+          });
+        }
+        if (Array.isArray(saved.milestones) && saved.milestones.length > 0) {
+          const existingIds = new Set(memoryStore.milestones.map(m => m.milestone_id));
+          saved.milestones.forEach(m => {
+            if (!existingIds.has(m.milestone_id)) memoryStore.milestones.push(m);
+          });
+        }
+        if (Array.isArray(saved.risk_scores) && saved.risk_scores.length > 0) {
+          const existingIds = new Set(memoryStore.risk_scores.map(r => r.score_id));
+          saved.risk_scores.forEach(r => {
+            if (!existingIds.has(r.score_id)) memoryStore.risk_scores.push(r);
+          });
+        }
+        if (Array.isArray(saved.notifications) && saved.notifications.length > 0) {
+          const existingIds = new Set(memoryStore.notifications.map(n => n.notification_id));
+          saved.notifications.forEach(n => {
+            if (!existingIds.has(n.notification_id)) memoryStore.notifications.push(n);
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[DB Warning] Failed to load memoryStore from disk:', err.message);
+  }
+}
+
+// Seed & Load on module load
+loadMemoryStoreFromDisk();
 
 let pool = null;
 let useMemoryStore = false;
@@ -210,6 +270,7 @@ const db = {
         created_at: new Date().toISOString()
       };
       memoryStore.users.push(newUser);
+      saveMemoryStoreToDisk();
       return { rows: [newUser] };
     }
 
@@ -229,6 +290,7 @@ const db = {
         created_at: new Date().toISOString()
       };
       memoryStore.projects.push(newProject);
+      saveMemoryStoreToDisk();
       return { rows: [newProject] };
     }
 
@@ -272,6 +334,7 @@ const db = {
         planned_end_date: planned_end_date || memoryStore.projects[index].planned_end_date
       };
 
+      saveMemoryStoreToDisk();
       return { rows: [memoryStore.projects[index]] };
     }
 
@@ -282,6 +345,7 @@ const db = {
         return { rows: [] };
       }
       const deleted = memoryStore.projects.splice(index, 1)[0];
+      saveMemoryStoreToDisk();
       return { rows: [deleted] };
     }
 
@@ -299,6 +363,7 @@ const db = {
         created_at: new Date().toISOString()
       };
       memoryStore.milestones.push(newMilestone);
+      saveMemoryStoreToDisk();
       return { rows: [newMilestone] };
     }
 
@@ -334,6 +399,7 @@ const db = {
         photo_url: photo_url !== undefined ? photo_url : memoryStore.milestones[index].photo_url
       };
 
+      saveMemoryStoreToDisk();
       return { rows: [memoryStore.milestones[index]] };
     }
 
@@ -344,6 +410,7 @@ const db = {
         return { rows: [] };
       }
       const deleted = memoryStore.milestones.splice(index, 1)[0];
+      saveMemoryStoreToDisk();
       return { rows: [deleted] };
     }
 
@@ -374,6 +441,7 @@ const db = {
       } else {
         memoryStore.risk_scores.push(newScore);
       }
+      saveMemoryStoreToDisk();
       return { rows: [newScore] };
     }
 
@@ -398,6 +466,7 @@ const db = {
         sent_at: sent_at || new Date().toISOString()
       };
       memoryStore.notifications.push(newNotif);
+      saveMemoryStoreToDisk();
       return { rows: [newNotif] };
     }
 
