@@ -32,52 +32,52 @@ export default function NotificationCenter() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         data-testid="notification-bell"
-        className="relative p-2.5 text-[#D7B66D] bg-[#102A25] border border-[#D7B66D]/30 hover:border-[#D7B66D]/60 rounded-xl transition shadow-md hover:shadow-[#D7B66D]/10"
+        className="relative p-2.5 text-white bg-zinc-900 border border-zinc-700 hover:border-white hover:bg-black rounded-xl transition shadow-md"
         title="SMS Alert Notification Center"
       >
-        <Bell className="w-5 h-5 text-[#D7B66D]" />
+        <Bell className="w-5 h-5 text-white" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-[#D7B66D] text-[#0B2318] text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center animate-pulse border border-[#0B2318]">
+          <span className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-black shadow-sm">
             {unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-80 sm:w-96 card-aserre rounded-2xl shadow-2xl z-50 overflow-hidden">
-          <div className="p-4 border-b border-[#D7B66D]/20 flex items-center justify-between bg-[#0B2318]">
+        <div className="absolute right-0 mt-3 w-80 sm:w-96 card-aserre rounded-2xl shadow-2xl z-50 overflow-hidden bg-zinc-950 border border-zinc-800">
+          <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-black">
             <div className="flex items-center space-x-2">
-              <Smartphone className="w-4 h-4 text-[#D7B66D]" />
-              <h3 className="text-sm font-bold font-serif-luxury text-white">SMS Alert Logs</h3>
+              <Smartphone className="w-4 h-4 text-white" />
+              <h3 className="text-sm font-bold text-white tracking-tight">SMS Alert Logs</h3>
             </div>
-            <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full badge-aserre-gold">
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-zinc-800 text-white border border-zinc-700">
               {notifications.length} Alerts
             </span>
           </div>
 
-          <div className="max-h-80 overflow-y-auto p-3.5 space-y-3 divide-y divide-[#D7B66D]/15">
+          <div className="max-h-80 overflow-y-auto p-3.5 space-y-3 divide-y divide-zinc-800">
             {loading && notifications.length === 0 ? (
-              <p className="text-xs text-[#8FA399] text-center py-6">Loading notification logs...</p>
+              <p className="text-xs text-zinc-400 text-center py-6 font-medium">Loading notification logs...</p>
             ) : notifications.length === 0 ? (
               <div className="text-center py-6 space-y-1.5">
-                <CheckCircle className="w-6 h-6 text-emerald-400 mx-auto" />
-                <p className="text-xs font-semibold font-serif-luxury text-white">No SMS Alerts Dispatched</p>
-                <p className="text-[10px] text-[#8FA399]">All project delay risks and cost overruns are within safe thresholds.</p>
+                <CheckCircle className="w-6 h-6 text-white mx-auto" />
+                <p className="text-xs font-bold text-white">No SMS Alerts Dispatched</p>
+                <p className="text-[10px] text-zinc-400 font-medium">All project delay risks and cost overruns are within safe thresholds.</p>
               </div>
             ) : (
               notifications.map((notif) => (
                 <div key={notif.notification_id} className="pt-3 first:pt-0 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-md badge-aserre-gold flex items-center space-x-1">
-                      <AlertTriangle className="w-3 h-3 mr-1 text-[#D7B66D]" />
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-zinc-800 text-white border border-zinc-700 flex items-center space-x-1">
+                      <AlertTriangle className="w-3 h-3 mr-1 text-white" />
                       {notif.channel || 'SMS'}
                     </span>
-                    <span className="text-[10px] text-[#8FA399] flex items-center space-x-1">
-                      <Clock className="w-3 h-3 mr-0.5 text-[#D7B66D]/60" />
+                    <span className="text-[10px] text-zinc-400 flex items-center space-x-1 font-medium">
+                      <Clock className="w-3 h-3 mr-0.5 text-zinc-500" />
                       {new Date(notif.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  <p className="text-xs text-[#FAF7F2] leading-snug font-mono bg-[#0B2318] p-2.5 rounded-xl border border-[#D7B66D]/20">
+                  <p className="text-xs text-zinc-200 leading-snug font-mono bg-black p-2.5 rounded-xl border border-zinc-800">
                     {notif.message}
                   </p>
                 </div>

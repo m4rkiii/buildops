@@ -59,34 +59,34 @@ export default function RegisterForm({ onSuccess }) {
   if (verificationPending) {
     return (
       <div className="space-y-5 pt-2 text-center">
-        <div className="w-12 h-12 bg-emerald-500/15 text-emerald-400 rounded-2xl mx-auto flex items-center justify-center border border-emerald-500/30">
-          <Mail className="w-6 h-6" />
+        <div className="w-12 h-12 bg-zinc-900 text-white rounded-2xl mx-auto flex items-center justify-center border border-zinc-700">
+          <Mail className="w-6 h-6 text-white" />
         </div>
         <div className="space-y-1.5">
-          <h3 className="text-xl font-bold font-serif-luxury text-white">
+          <h3 className="text-xl font-bold text-white tracking-tight">
             Check Your Email
           </h3>
-          <p className="text-xs text-[#8FA399]">
+          <p className="text-xs text-zinc-400">
             A confirmation link was dispatched to <strong className="text-white">{email}</strong>.
           </p>
         </div>
 
-        <div className="bg-[#0B2318] border border-[#D7B66D]/20 rounded-xl p-3.5 text-xs text-[#8FA399] text-left space-y-1">
-          <div className="flex items-center text-white font-semibold mb-1">
-            <CheckCircle2 className="w-4 h-4 text-[#D7B66D] mr-1.5" />
+        <div className="bg-black border border-zinc-700 rounded-xl p-4 text-xs text-zinc-300 text-left space-y-1.5">
+          <div className="flex items-center text-white font-bold mb-1">
+            <CheckCircle2 className="w-4 h-4 text-white mr-1.5 shrink-0" />
             Next Steps:
           </div>
           <p>1. Open your email inbox.</p>
           <p>2. Click the verification link to confirm your account.</p>
-          <p>3. You will be automatically redirected back to BuildOps Sentinel.</p>
+          <p>3. You will be automatically redirected back to BuildOps.</p>
         </div>
 
         <button
           onClick={onSuccess}
-          className="btn-aserre-gold w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5"
+          className="bg-white hover:bg-zinc-200 text-black w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 transition border border-zinc-300"
         >
           <span>Return to Sign In</span>
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-4 h-4 text-black" />
         </button>
       </div>
     );
@@ -99,24 +99,24 @@ export default function RegisterForm({ onSuccess }) {
 
       {/* Divider */}
       <div className="relative flex items-center my-2">
-        <div className="flex-grow border-t border-[#D7B66D]/20"></div>
-        <span className="flex-shrink mx-3 text-[10px] text-[#8FA399] uppercase tracking-wider font-semibold">Or Register with Email</span>
-        <div className="flex-grow border-t border-[#D7B66D]/20"></div>
+        <div className="flex-grow border-t border-zinc-800"></div>
+        <span className="flex-shrink mx-3 text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Or Register with Email</span>
+        <div className="flex-grow border-t border-zinc-800"></div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start space-x-2 text-red-400 text-xs">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+        <div className="bg-zinc-900 border border-white rounded-xl p-3.5 flex items-start space-x-2 text-white text-xs font-medium">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-white" />
           <span>{error}</span>
         </div>
       )}
 
       {/* Full Name Input */}
       <div>
-        <label className="block text-xs font-semibold text-[#D7B66D] mb-1.5 uppercase tracking-wider">Full Name *</label>
+        <label className="block text-xs font-bold text-zinc-300 mb-1.5 uppercase tracking-wider">Full Name *</label>
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8FA399]">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
             <User className="w-4 h-4" />
           </div>
           <input
@@ -125,16 +125,16 @@ export default function RegisterForm({ onSuccess }) {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Eng. Maina Kamau"
-            className="w-full bg-[#0B2318] border border-[#D7B66D]/30 focus:border-[#D7B66D] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-[#8FA399]/60 focus:outline-none focus:ring-1 focus:ring-[#D7B66D] transition"
+            className="w-full bg-black border border-zinc-700 focus:border-white rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-white transition"
           />
         </div>
       </div>
 
       {/* Email Input */}
       <div>
-        <label className="block text-xs font-semibold text-[#D7B66D] mb-1.5 uppercase tracking-wider">Email Address *</label>
+        <label className="block text-xs font-bold text-zinc-300 mb-1.5 uppercase tracking-wider">Email Address *</label>
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8FA399]">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
             <Mail className="w-4 h-4" />
           </div>
           <input
@@ -143,16 +143,16 @@ export default function RegisterForm({ onSuccess }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="maina@buildops.co.ke"
-            className="w-full bg-[#0B2318] border border-[#D7B66D]/30 focus:border-[#D7B66D] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-[#8FA399]/60 focus:outline-none focus:ring-1 focus:ring-[#D7B66D] transition"
+            className="w-full bg-black border border-zinc-700 focus:border-white rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-white transition"
           />
         </div>
       </div>
 
       {/* Password Input */}
       <div>
-        <label className="block text-xs font-semibold text-[#D7B66D] mb-1.5 uppercase tracking-wider">Password (Min 6 chars) *</label>
+        <label className="block text-xs font-bold text-zinc-300 mb-1.5 uppercase tracking-wider">Password (Min 6 chars) *</label>
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8FA399]">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
             <Lock className="w-4 h-4" />
           </div>
           <input
@@ -162,16 +162,16 @@ export default function RegisterForm({ onSuccess }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full bg-[#0B2318] border border-[#D7B66D]/30 focus:border-[#D7B66D] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-[#8FA399]/60 focus:outline-none focus:ring-1 focus:ring-[#D7B66D] transition"
+            className="w-full bg-black border border-zinc-700 focus:border-white rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-white transition"
           />
         </div>
       </div>
 
       {/* Phone Number Input */}
       <div>
-        <label className="block text-xs font-semibold text-[#D7B66D] mb-1.5 uppercase tracking-wider">Phone Number (Optional)</label>
+        <label className="block text-xs font-bold text-zinc-300 mb-1.5 uppercase tracking-wider">Phone Number (Optional)</label>
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8FA399]">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
             <Phone className="w-4 h-4" />
           </div>
           <input
@@ -179,30 +179,30 @@ export default function RegisterForm({ onSuccess }) {
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             placeholder="+254712345678"
-            className="w-full bg-[#0B2318] border border-[#D7B66D]/30 focus:border-[#D7B66D] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-[#8FA399]/60 focus:outline-none focus:ring-1 focus:ring-[#D7B66D] transition"
+            className="w-full bg-black border border-zinc-700 focus:border-white rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-white transition"
           />
         </div>
       </div>
 
       {/* Role Selection Grid */}
       <div>
-        <label className="block text-xs font-semibold text-[#D7B66D] mb-1.5 uppercase tracking-wider">Select Platform Role *</label>
+        <label className="block text-xs font-bold text-zinc-300 mb-1.5 uppercase tracking-wider">Select Platform Role *</label>
         <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto pr-1">
           {ROLES.map((r) => (
             <div
               key={r.id}
               onClick={() => setRole(r.id)}
-              className={`p-2.5 rounded-xl border text-left cursor-pointer transition flex items-center justify-between ${
+              className={`p-3 rounded-xl border text-left cursor-pointer transition flex items-center justify-between ${
                 role === r.id
-                  ? 'bg-[#D7B66D]/15 border-[#D7B66D] text-[#D7B66D]'
-                  : 'bg-[#0B2318] border-[#D7B66D]/20 text-[#8FA399] hover:border-[#D7B66D]/40'
+                  ? 'bg-white border-white text-black font-bold shadow-md'
+                  : 'bg-black border-zinc-800 text-zinc-400 hover:border-zinc-600'
               }`}
             >
               <div>
-                <div className="text-xs font-semibold text-white">{r.label}</div>
-                <div className="text-[11px] text-[#8FA399]">{r.desc}</div>
+                <div className={`text-xs font-bold ${role === r.id ? 'text-black' : 'text-white'}`}>{r.label}</div>
+                <div className={`text-[11px] ${role === r.id ? 'text-zinc-700' : 'text-zinc-400'}`}>{r.desc}</div>
               </div>
-              {role === r.id && <UserCheck className="w-4 h-4 shrink-0 text-[#D7B66D]" />}
+              {role === r.id && <UserCheck className="w-4 h-4 shrink-0 text-black" />}
             </div>
           ))}
         </div>
@@ -212,13 +212,13 @@ export default function RegisterForm({ onSuccess }) {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full btn-aserre-gold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 text-sm font-semibold transition disabled:opacity-50 mt-2"
+        className="w-full bg-white hover:bg-zinc-200 text-black py-3 px-4 rounded-xl flex items-center justify-center space-x-2 text-sm font-bold transition disabled:opacity-50 mt-2 border border-zinc-300"
       >
         {submitting ? (
-          <div className="w-4 h-4 border-2 border-[#0B2318] border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
         ) : (
           <>
-            <UserCheck className="w-4 h-4" />
+            <UserCheck className="w-4 h-4 text-black" />
             <span>Create BuildOps Account</span>
           </>
         )}

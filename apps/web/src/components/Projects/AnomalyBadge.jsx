@@ -35,26 +35,26 @@ export default function AnomalyBadge({ projectId, token }) {
 
   if (!anomaly.is_anomaly) {
     return (
-      <div className="inline-flex items-center space-x-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-        <CheckCircle2 className="w-3.5 h-3.5" />
+      <div className="inline-flex items-center space-x-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-zinc-900 text-white border border-zinc-700">
+        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
         <span>Metrics Normal</span>
       </div>
     );
   }
 
   return (
-    <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-amber-200 space-y-2">
+    <div className="bg-black border border-white rounded-xl p-4 text-white space-y-2 font-medium">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2 font-bold text-xs uppercase tracking-wider text-amber-400">
-          <ShieldAlert className="w-4 h-4 text-amber-400" />
+        <div className="flex items-center space-x-2 font-bold text-xs uppercase tracking-wider text-white">
+          <ShieldAlert className="w-4 h-4 text-white" />
           <span>Isolation Forest Anomaly Detected</span>
         </div>
-        <span className="text-[10px] font-semibold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">
+        <span className="text-[10px] font-bold bg-white text-black px-2 py-0.5 rounded border border-white">
           Anomaly Score: {(anomaly.anomaly_score * 100).toFixed(1)}%
         </span>
       </div>
       {anomaly.detected_outliers && anomaly.detected_outliers.length > 0 && (
-        <ul className="list-disc list-inside text-xs space-y-0.5 text-amber-300/90 pl-1">
+        <ul className="list-disc list-inside text-xs space-y-0.5 text-zinc-300 pl-1 font-medium">
           {anomaly.detected_outliers.map((outlier, idx) => (
             <li key={idx}>{outlier}</li>
           ))}
