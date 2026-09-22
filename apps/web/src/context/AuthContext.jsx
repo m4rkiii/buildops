@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
+import {
+  signUpWithUsername as serviceSignUpWithUsername,
+  signInWithUsernameOrEmail as serviceSignInWithUsernameOrEmail,
+  resendConfirmationEmail as serviceResendConfirmationEmail,
+  checkUsernameAvailability as serviceCheckUsernameAvailability
+} from '../services/authService';
 
 const AuthContext = createContext(null);
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://buildops-api-33fl.onrender.com';
@@ -108,91 +114,65 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // Supabase Email Sign-Up Flow
-  const signUpWithEmail = async (email, password, metadata = {}) => {
-    if (isSupabaseConfigured) {
-      const redirectUrl = `${window.location.origin}/#auth-callback`;
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: metadata,
-          emailRedirectTo: redirectUrl
-        }
-      });
-
-      if (error) throw error;
-
-      const isUnverified = !data.user?.email_confirmed_at;
-      if (data.user) {
-        setUser({
-          user_id: data.user.id,
-          email: data.user.email,
-          full_name: metadata.full_name || email.split('@')[0],
-          role: metadata.role || 'contractor',
-          phone_number: metadata.phone_number || null,
-          email_confirmed_at: data.user.email_confirmed_at
-        });
-        setIsEmailUnverified(isUnverified);
-      }
-
-      return { user: data.user, session: data.session, isUnverified };
-    }
-
-    // Fallback to Express Local API Registration
-    const res = await fetch(`${API_BASE_URL}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, ...metadata })
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Registration failed');
-
-    localStorage.setItem('buildops_token', data.token);
-    setToken(data.token);
-    setUser(data.user);
-    setAuthProvider('local');
-    setIsEmailUnverified(false);
-    return { user: data.user, token: data.token, isUnverified: false };
+  // Username Availability Helper
+  const checkUsernameAvailability = async (username) => {
+    return await serviceCheckUsernameAvailability(username);
   };
 
-  // Supabase Email & Password Sign-In
-  const signInWithPassword = async (email, password) => {
-    if (isSupabaseConfigured) {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
+  // Supabase Email & Username Sign-Up Flow
+  const signUpWithUsername = async ({ username, email, password, role, full_name, phone_number }) => {
+    const res = await serviceSignUpWithUsername({ username, email, password, role, full_name, phone_number });
+    if (res.user) {
+      setUser({
+        user_id: res.user.id,
+        email: res.user.email,
+        full_name: full_name || username || email.split('@')[0],
+        role: role || 'contractor',
+        phone_number: phone_number || null,
+        email_confirmed_at: res.user.email_confirmed_at
       });
-
-      if (error) {
-        // Fallback to local express API if Supabase login fails or user exists locally
-        try {
-          return await loginLocalApi(email, password);
-        } catch {
-          throw error;
-        }
-      }
-
-      const supabaseUser = data.user;
-      const formattedUser = {
-        user_id: supabaseUser.id,
-        email: supabaseUser.email,
-        full_name: supabaseUser.user_metadata?.full_name || supabaseUser.email.split('@')[0],
-        role: supabaseUser.user_metadata?.role || 'contractor',
-        phone_number: supabaseUser.user_metadata?.phone_number || null,
-        email_confirmed_at: supabaseUser.email_confirmed_at
-      };
-
-      setUser(formattedUser);
-      setSession(data.session);
-      setToken(data.session.access_token);
-      setIsEmailUnverified(!supabaseUser.email_confirmed_at);
-      setAuthProvider('supabase');
-      return formattedUser;
+      setIsEmailUnverified(res.isUnverified);
     }
+    return res;
+  };
 
-    return await loginLocalApi(email, password);
+  const signUpWithEmail = async (email, password, metadata = {}) => {
+    const username = metadata.username || email.split('@')[0];
+    return await signUpWithUsername({ username, email, password, ...metadata });
+  };
+
+  // Username or Email & Password Sign-In Flow
+  const signInWithUsernameOrEmail = async (identifier, password) => {
+    try {
+      const res = await serviceSignInWithUsernameOrEmail({ identifier, password });
+      if (res.session) {
+        setSession(res.session);
+        setToken(res.session.access_token);
+        const supabaseUser = res.user;
+        const formattedUser = {
+          user_id: supabaseUser.id,
+          email: supabaseUser.email,
+          full_name: supabaseUser.user_metadata?.full_name || supabaseUser.email.split('@')[0],
+          role: supabaseUser.user_metadata?.role || 'contractor',
+          phone_number: supabaseUser.user_metadata?.phone_number || null,
+          email_confirmed_at: supabaseUser.email_confirmed_at
+        };
+        setUser(formattedUser);
+        setIsEmailUnverified(!supabaseUser.email_confirmed_at);
+        setAuthProvider('supabase');
+        return formattedUser;
+      }
+      return res.user;
+    } catch (err) {
+      if (err.isEmailUnconfirmed) {
+        setIsEmailUnverified(true);
+      }
+      throw err;
+    }
+  };
+
+  const signInWithPassword = async (email, password) => {
+    return await signInWithUsernameOrEmail(email, password);
   };
 
   // Helper for Express Local API Login
@@ -233,15 +213,7 @@ export function AuthProvider({ children }) {
 
   // Resend Email Confirmation
   const resendVerificationEmail = async (email) => {
-    if (!isSupabaseConfigured) return;
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/#auth-callback`
-      }
-    });
-    if (error) throw error;
+    return await serviceResendConfirmationEmail(email);
   };
 
   // Supabase Google OAuth Flow
@@ -275,13 +247,16 @@ export function AuthProvider({ children }) {
         isEmailUnverified,
         authProvider,
         isSupabaseConfigured,
+        signUpWithUsername,
         signUpWithEmail,
+        signInWithUsernameOrEmail,
         signInWithPassword,
+        checkUsernameAvailability,
         signInWithGoogle,
         loginWithGoogle: signInWithGoogle,
         signOut,
-        login: signInWithPassword,
-        register: (data) => signUpWithEmail(data.email, data.password, data),
+        login: signInWithUsernameOrEmail,
+        register: (data) => signUpWithUsername(data),
         logout: signOut,
         resendVerificationEmail,
         isAuthenticated: !!user
