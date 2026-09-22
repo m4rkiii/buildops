@@ -317,8 +317,8 @@ const db = {
     }
 
     if (lowerSql.startsWith('update projects')) {
-      const [project_name, project_type, county, nca_contractor_grade, budget_ksh, planned_start_date, planned_end_date, project_id, owner_user_id] = params;
-      const index = memoryStore.projects.findIndex(p => p.project_id === project_id && p.owner_user_id === owner_user_id);
+      const [project_name, project_type, county, nca_contractor_grade, budget_ksh, planned_start_date, planned_end_date, project_id] = params;
+      const index = memoryStore.projects.findIndex(p => p.project_id === project_id);
       if (index === -1) {
         return { rows: [] };
       }
@@ -329,7 +329,7 @@ const db = {
         project_type: project_type || memoryStore.projects[index].project_type,
         county: county || memoryStore.projects[index].county,
         nca_contractor_grade: nca_contractor_grade || memoryStore.projects[index].nca_contractor_grade,
-        budget_ksh: budget_ksh !== undefined ? parseFloat(budget_ksh) : memoryStore.projects[index].budget_ksh,
+        budget_ksh: budget_ksh !== undefined && budget_ksh !== null ? parseFloat(budget_ksh) : memoryStore.projects[index].budget_ksh,
         planned_start_date: planned_start_date || memoryStore.projects[index].planned_start_date,
         planned_end_date: planned_end_date || memoryStore.projects[index].planned_end_date
       };
@@ -339,8 +339,8 @@ const db = {
     }
 
     if (lowerSql.startsWith('delete from projects')) {
-      const [project_id, owner_user_id] = params;
-      const index = memoryStore.projects.findIndex(p => p.project_id === project_id && p.owner_user_id === owner_user_id);
+      const project_id = params[0];
+      const index = memoryStore.projects.findIndex(p => p.project_id === project_id);
       if (index === -1) {
         return { rows: [] };
       }

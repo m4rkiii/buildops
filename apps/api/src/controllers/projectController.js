@@ -127,9 +127,11 @@ async function getProjectById(req, res) {
 
     const project = projectRes.rows[0];
     const isRegulator = req.user && (req.user.role === 'nca_regulator' || req.user.role === 'government_officer');
+    const isDemoProject = project.owner_user_id === 'demo-contractor-001';
+    const isOwner = req.user && project.owner_user_id === req.user.user_id;
 
-    // Ownership Authorization Check (bypassed for Regulators)
-    if (!isRegulator && project.owner_user_id !== req.user.user_id) {
+    // Ownership Authorization Check (bypassed for Regulators and Demo Projects)
+    if (!isRegulator && !isDemoProject && !isOwner) {
       return res.status(403).json({ error: 'Access denied. You do not own this project.' });
     }
 
@@ -161,12 +163,16 @@ async function updateProject(req, res) {
 
     const { id } = req.params;
 
-    // Verify Project Ownership
+    // Verify Project Existence and Ownership
     const checkRes = await db.query('SELECT * FROM projects WHERE project_id = $1', [id]);
     if (checkRes.rows.length === 0) {
       return res.status(404).json({ error: 'Project not found' });
     }
-    if (checkRes.rows[0].owner_user_id !== req.user.user_id) {
+    const projectToUpdate = checkRes.rows[0];
+    const isDemoProject = projectToUpdate.owner_user_id === 'demo-contractor-001';
+    const isOwner = req.user && projectToUpdate.owner_user_id === req.user.user_id;
+
+    if (!isOwner && !isDemoProject) {
       return res.status(403).json({ error: 'Access denied. You do not own this project.' });
     }
 
@@ -189,20 +195,23 @@ async function updateProject(req, res) {
            budget_ksh = COALESCE($5, budget_ksh),
            planned_start_date = COALESCE($6, planned_start_date),
            planned_end_date = COALESCE($7, planned_end_date)
-       WHERE project_id = $8 AND owner_user_id = $9
+       WHERE project_id = $8
        RETURNING *`,
       [
         project_name ? project_name.trim() : null,
         project_type ? project_type.trim() : null,
         county ? county.trim() : null,
         nca_contractor_grade ? nca_contractor_grade.trim() : null,
-        budget_ksh !== undefined ? parseFloat(budget_ksh) : null,
+        budget_ksh !== undefined && budget_ksh !== null ? parseFloat(budget_ksh) : null,
         planned_start_date || null,
         planned_end_date || null,
-        id,
-        req.user.user_id
+        id
       ]
     );
+
+    if (!updateRes.rows || updateRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
 
     const project = updateRes.rows[0];
     const risk = await riskService.recalculateDelayRisk(project.project_id);
@@ -236,11 +245,15 @@ async function deleteProject(req, res) {
     if (checkRes.rows.length === 0) {
       return res.status(404).json({ error: 'Project not found' });
     }
-    if (checkRes.rows[0].owner_user_id !== req.user.user_id) {
+    const projectToDelete = checkRes.rows[0];
+    const isDemoProject = projectToDelete.owner_user_id === 'demo-contractor-001';
+    const isOwner = req.user && projectToDelete.owner_user_id === req.user.user_id;
+
+    if (!isOwner && !isDemoProject) {
       return res.status(403).json({ error: 'Access denied. You do not own this project.' });
     }
 
-    await db.query('DELETE FROM projects WHERE project_id = $1 AND owner_user_id = $2', [id, req.user.user_id]);
+    await db.query('DELETE FROM projects WHERE project_id = $1', [id]);
 
     return res.status(200).json({ message: 'Project deleted successfully', project_id: id });
   } catch (err) {
@@ -261,7 +274,10 @@ async function getScheduleForecast(req, res) {
     }
     const project = projectRes.rows[0];
     const isRegulator = req.user && (req.user.role === 'nca_regulator' || req.user.role === 'government_officer');
-    if (!isRegulator && project.owner_user_id !== req.user.user_id) {
+    const isDemoProject = project.owner_user_id === 'demo-contractor-001';
+    const isOwner = req.user && project.owner_user_id === req.user.user_id;
+
+    if (!isRegulator && !isDemoProject && !isOwner) {
       return res.status(403).json({ error: 'Access denied. You do not own this project.' });
     }
 
@@ -300,7 +316,10 @@ async function getAnomalyCheck(req, res) {
     }
     const project = projectRes.rows[0];
     const isRegulator = req.user && (req.user.role === 'nca_regulator' || req.user.role === 'government_officer');
-    if (!isRegulator && project.owner_user_id !== req.user.user_id) {
+    const isDemoProject = project.owner_user_id === 'demo-contractor-001';
+    const isOwner = req.user && project.owner_user_id === req.user.user_id;
+
+    if (!isRegulator && !isDemoProject && !isOwner) {
       return res.status(403).json({ error: 'Access denied. You do not own this project.' });
     }
 

@@ -13,9 +13,10 @@ async function getProjectDigest(req, res) {
     }
     const project = projResult.rows[0];
 
-    // Ensure project belongs to user (or authorized role)
+    // Ensure project belongs to user (or authorized role or demo project)
+    const isDemoProject = project.owner_user_id === 'demo-contractor-001';
     if (req.user && req.user.role !== 'government_officer' && req.user.role !== 'nca_regulator') {
-      if (project.owner_user_id !== req.user.user_id) {
+      if (project.owner_user_id !== req.user.user_id && !isDemoProject) {
         return res.status(403).json({ error: 'Access denied' });
       }
     }

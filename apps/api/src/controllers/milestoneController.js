@@ -14,8 +14,10 @@ async function verifyProjectAccess(projectId, user) {
 
   const project = projRes.rows[0];
   const isRegulator = user && (user.role === 'nca_regulator' || user.role === 'government_officer');
+  const isDemoProject = project.owner_user_id === 'demo-contractor-001';
+  const isOwner = user && project.owner_user_id === user.user_id;
 
-  if (!isRegulator && project.owner_user_id !== user.user_id) {
+  if (!isRegulator && !isDemoProject && !isOwner) {
     return { error: 'Access denied. You do not own this project.', status: 403 };
   }
   return { project };
