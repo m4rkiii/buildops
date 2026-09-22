@@ -85,8 +85,24 @@ export async function resolveUsernameToEmail(username) {
 
 /**
  * Sign up with Username, Email, Password, and Metadata
+ * Supports real-time database synchronization and automatic login upon creation
  */
-export async function signUpWithUsername({ username, email, password, role = 'contractor', full_name, phone_number }) {
+export async function signUpWithUsername(arg1, arg2, arg3, arg4) {
+  let username, email, password, role, full_name, phone_number;
+
+  if (typeof arg1 === 'object' && arg1 !== null) {
+    ({ username, email, password, role = 'contractor', full_name, phone_number } = arg1);
+  } else {
+    username = arg1;
+    email = arg2;
+    password = arg3;
+    if (arg4 && typeof arg4 === 'object') {
+      role = arg4.role || 'contractor';
+      full_name = arg4.full_name;
+      phone_number = arg4.phone_number;
+    }
+  }
+
   if (!username || username.trim().length < 3) {
     throw new Error('Username must be at least 3 characters long.');
   }
@@ -98,16 +114,18 @@ export async function signUpWithUsername({ username, email, password, role = 'co
   }
 
   const redirectUrl = `${window.location.origin}/#auth-callback`;
+  const cleanUsername = username.trim().toLowerCase();
+  const cleanEmail = email.trim();
 
   if (isSupabaseConfigured) {
     const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
+      email: cleanEmail,
       password,
       options: {
         data: {
-          username: username.trim().toLowerCase(),
-          full_name: full_name || username.trim(),
-          role,
+          username: cleanUsername,
+          full_name: full_name || cleanUsername,
+          role: role || 'contractor',
           phone_number: phone_number || null
         },
         emailRedirectTo: redirectUrl
@@ -116,12 +134,44 @@ export async function signUpWithUsername({ username, email, password, role = 'co
 
     if (error) throw error;
 
-    const isUnverified = !data.user?.email_confirmed_at;
+    let user = data.user;
+    let session = data.session;
+
+    // Attempt real-time auto-login if session was not returned immediately
+    if (!session && user) {
+      try {
+        const loginRes = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password
+        });
+        if (loginRes.data?.session) {
+          session = loginRes.data.session;
+          user = loginRes.data.user;
+        }
+      } catch {
+        // If email verification is strictly required by Supabase instance, session remains null until confirmed
+      }
+    }
+
+    // Save directly to public.users table for real-time database synchronization
+    if (user) {
+      try {
+        await supabase.from('users').upsert({
+          id: user.id,
+          username: cleanUsername,
+          email: cleanEmail
+        }, { onConflict: 'id' });
+      } catch (dbErr) {
+        console.warn('[AuthService] Real-time public.users upsert warning:', dbErr.message);
+      }
+    }
+
+    const isUnverified = !user?.email_confirmed_at && !session;
     return {
-      user: data.user,
-      session: data.session,
+      user,
+      session,
       isUnverified,
-      message: isUnverified ? 'Please check your email inbox to verify your account before logging in.' : 'Account created successfully!'
+      message: isUnverified ? 'Account created! Please check your email inbox to confirm your account.' : 'Account created and signed in successfully!'
     };
   }
 
@@ -131,11 +181,11 @@ export async function signUpWithUsername({ username, email, password, role = 'co
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      username: username.trim().toLowerCase(),
-      email: email.trim(),
+      username: cleanUsername,
+      email: cleanEmail,
       password,
-      role,
-      full_name: full_name || username.trim(),
+      role: role || 'contractor',
+      full_name: full_name || cleanUsername,
       phone_number
     })
   });
