@@ -276,9 +276,15 @@ const db = {
 
     // PROJECTS QUERIES
     if (lowerSql.startsWith('insert into projects')) {
-      const [owner_user_id, project_name, project_type, county, nca_contractor_grade, budget_ksh, planned_start_date, planned_end_date] = params;
+      let project_id, owner_user_id, project_name, project_type, county, nca_contractor_grade, budget_ksh, planned_start_date, planned_end_date;
+      if (params.length >= 9) {
+        [project_id, owner_user_id, project_name, project_type, county, nca_contractor_grade, budget_ksh, planned_start_date, planned_end_date] = params;
+      } else {
+        [owner_user_id, project_name, project_type, county, nca_contractor_grade, budget_ksh, planned_start_date, planned_end_date] = params;
+        project_id = crypto.randomUUID();
+      }
       const newProject = {
-        project_id: crypto.randomUUID(),
+        project_id: project_id || crypto.randomUUID(),
         owner_user_id,
         project_name,
         project_type,
@@ -289,7 +295,12 @@ const db = {
         planned_end_date,
         created_at: new Date().toISOString()
       };
-      memoryStore.projects.push(newProject);
+      const existingIdx = memoryStore.projects.findIndex(p => p.project_id === newProject.project_id);
+      if (existingIdx !== -1) {
+        memoryStore.projects[existingIdx] = newProject;
+      } else {
+        memoryStore.projects.push(newProject);
+      }
       saveMemoryStoreToDisk();
       return { rows: [newProject] };
     }

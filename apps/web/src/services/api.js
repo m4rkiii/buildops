@@ -64,6 +64,12 @@ export async function getProjects() {
       const cached = getCachedProjects();
       const backendIds = new Set(data.projects.map(p => p.project_id));
       const localOnly = cached.filter(p => p && p.project_id && !backendIds.has(p.project_id));
+
+      // Auto-sync local-only cached projects to backend so they exist server-side
+      for (const localProj of localOnly) {
+        createProject(localProj).catch(() => {});
+      }
+
       const merged = [...data.projects, ...localOnly];
       saveCachedProjects(merged);
       return { projects: merged };
