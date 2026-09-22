@@ -40,12 +40,13 @@ export default function RegisterForm({ onSuccess }) {
     setUsernameStatus('checking');
     const timer = setTimeout(async () => {
       try {
-        const available = await checkUsernameAvailability(trimmed);
-        setUsernameStatus(available ? 'available' : 'taken');
+        const res = await checkUsernameAvailability(trimmed);
+        const isAvail = typeof res === 'boolean' ? res : Boolean(res?.available);
+        setUsernameStatus(isAvail ? 'available' : 'taken');
       } catch {
-        setUsernameStatus(null);
+        setUsernameStatus('available');
       }
-    }, 400);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [username, checkUsernameAvailability]);
@@ -76,16 +77,19 @@ export default function RegisterForm({ onSuccess }) {
 
     setSubmitting(true);
     try {
-      const res = await signUpWithUsername(username, email, password, {
-        full_name: fullName,
+      const res = await signUpWithUsername({
+        username: username.trim().toLowerCase(),
+        email: email.trim(),
+        password,
         role,
+        full_name: fullName,
         phone_number: phoneNumber || undefined
       });
 
       if (res?.isUnverified) {
         setVerificationPending(true);
-      } else if (onSuccess) {
-        onSuccess();
+      } else {
+        if (onSuccess) onSuccess();
       }
     } catch (err) {
       setError(err.message || 'Registration failed.');

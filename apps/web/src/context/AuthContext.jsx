@@ -120,18 +120,35 @@ export function AuthProvider({ children }) {
   };
 
   // Supabase Email & Username Sign-Up Flow
-  const signUpWithUsername = async ({ username, email, password, role, full_name, phone_number }) => {
-    const res = await serviceSignUpWithUsername({ username, email, password, role, full_name, phone_number });
-    if (res.user) {
-      setUser({
-        user_id: res.user.id,
-        email: res.user.email,
-        full_name: full_name || username || email.split('@')[0],
-        role: role || 'contractor',
-        phone_number: phone_number || null,
-        email_confirmed_at: res.user.email_confirmed_at
-      });
-      setIsEmailUnverified(res.isUnverified);
+  const signUpWithUsername = async (arg1, arg2, arg3, arg4) => {
+    let opts = {};
+    if (typeof arg1 === 'object' && arg1 !== null) {
+      opts = arg1;
+    } else {
+      opts = {
+        username: arg1,
+        email: arg2,
+        password: arg3,
+        ...(arg4 || {})
+      };
+    }
+
+    const res = await serviceSignUpWithUsername(opts);
+    if (res?.user) {
+      const formattedUser = {
+        user_id: res.user.id || res.user.user_id || `usr-${Date.now()}`,
+        email: res.user.email || opts.email,
+        full_name: opts.full_name || res.user.full_name || opts.username || opts.email.split('@')[0],
+        role: opts.role || res.user.role || 'contractor',
+        phone_number: opts.phone_number || res.user.phone_number || null,
+        email_confirmed_at: res.user.email_confirmed_at || (res.isUnverified ? null : new Date().toISOString())
+      };
+      setUser(formattedUser);
+      if (res.token) {
+        setToken(res.token);
+        localStorage.setItem('buildops_token', res.token);
+      }
+      setIsEmailUnverified(Boolean(res.isUnverified));
     }
     return res;
   };
