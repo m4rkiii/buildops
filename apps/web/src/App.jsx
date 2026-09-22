@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import GoogleButton from './components/Auth/GoogleButton';
+import LoginForm from './components/Auth/LoginForm';
+import RegisterForm from './components/Auth/RegisterForm';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import AuthCallback from './components/Auth/AuthCallback';
 import EmailVerificationBanner from './components/Auth/EmailVerificationBanner';
@@ -12,6 +14,7 @@ import { Shield, CheckCircle2, AlertCircle, LogOut, Crown } from 'lucide-react';
 function DashboardContent() {
   const { user, logout, isSupabaseConfigured } = useAuth();
   const [selectedProject, setSelectedProject] = useState(null);
+  const [authTab, setAuthTab] = useState('login'); // 'login' | 'register'
   const [apiStatus, setApiStatus] = useState('checking');
   const [mlStatus, setMlStatus] = useState('checking');
   const [isCallbackRoute, setIsCallbackRoute] = useState(
@@ -110,27 +113,55 @@ function DashboardContent() {
       {/* Main Content */}
       <main className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
         {!user ? (
-          /* Google Authentication Only Card */
-          <div className="max-w-md mx-auto card-aserre rounded-2xl p-8 space-y-6 my-12 shadow-2xl text-center border border-zinc-800 bg-zinc-950">
-            <div className="space-y-3">
-              <div className="w-14 h-14 bg-zinc-900 rounded-2xl mx-auto flex items-center justify-center border border-zinc-700 mb-3 shadow-lg">
-                <Crown className="w-7 h-7 text-white" />
+          /* Authentication Container (Sign In & Sign Up with Username/Email & Google OAuth) */
+          <div className="max-w-md mx-auto card-aserre rounded-2xl p-6 space-y-5 my-8 shadow-2xl border border-zinc-800 bg-zinc-950">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-zinc-900 rounded-2xl mx-auto flex items-center justify-center border border-zinc-700 shadow-lg">
+                <Crown className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-3xl font-bold text-white tracking-tight">
+              <h2 className="text-2xl font-bold text-white tracking-tight">
                 Welcome to <span className="text-zinc-400">BuildOps</span>
               </h2>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Sign in with your Google account to access AI predictive risk analytics & decision support.
+              <p className="text-xs text-zinc-400">
+                Access AI predictive risk analytics & construction oversight.
               </p>
             </div>
 
-            {/* Google OAuth Login Button */}
-            <div className="pt-2">
-              <GoogleButton label="Continue with Google" />
+            {/* Auth Tab Controls */}
+            <div className="flex bg-black p-1 rounded-xl border border-zinc-800">
+              <button
+                type="button"
+                onClick={() => setAuthTab('login')}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition ${
+                  authTab === 'login'
+                    ? 'bg-white text-black shadow-sm'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuthTab('register')}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition ${
+                  authTab === 'register'
+                    ? 'bg-white text-black shadow-sm'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                Create Account
+              </button>
             </div>
 
-            <div className="pt-2 text-[11px] text-zinc-500 border-t border-zinc-800 font-medium">
-              Secure authentication powered by Google OAuth & Supabase Security
+            {/* Tab View */}
+            {authTab === 'login' ? (
+              <LoginForm onSuccess={() => {}} />
+            ) : (
+              <RegisterForm onSuccess={() => setAuthTab('login')} />
+            )}
+
+            <div className="pt-2 text-[11px] text-zinc-500 text-center border-t border-zinc-800 font-medium">
+              Protected by BuildOps Security & Supabase Auth Engine
             </div>
           </div>
         ) : (
@@ -205,3 +236,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+
