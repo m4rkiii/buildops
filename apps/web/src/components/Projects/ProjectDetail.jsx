@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MilestoneList from '../Milestones/MilestoneList';
 import AIDigestModal from '../Reports/AIDigestModal';
 import ScheduleForecastCard from './ScheduleForecastCard';
@@ -6,13 +6,35 @@ import AnomalyBadge from './AnomalyBadge';
 import ScenarioSimulatorCard from './ScenarioSimulatorCard';
 import SCurveChart from './SCurveChart';
 import ExecutivePdfExporter from '../Reports/ExecutivePdfExporter';
-import { ArrowLeft, MapPin, DollarSign, Calendar, AlertCircle, CheckCircle2, TrendingUp, AlertOctagon, AlertTriangle, Cpu, Crown } from 'lucide-react';
+import ProjectModal from './ProjectModal';
+import { getProjectById } from '../../services/api';
+import { ArrowLeft, MapPin, DollarSign, Calendar, AlertCircle, CheckCircle2, TrendingUp, AlertOctagon, AlertTriangle, Cpu, Crown, Edit3 } from 'lucide-react';
 
 export default function ProjectDetail({ project, onBack, token }) {
+  const [currentProject, setCurrentProject] = useState(project);
   const [isDigestOpen, setIsDigestOpen] = useState(false);
-  const authToken = token || localStorage.getItem('token');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const authToken = token || localStorage.getItem('buildops_token') || localStorage.getItem('token');
 
-  if (!project) return null;
+  useEffect(() => {
+    setCurrentProject(project);
+  }, [project]);
+
+  const refreshProject = async () => {
+    if (!currentProject?.project_id) return;
+    try {
+      const data = await getProjectById(currentProject.project_id);
+      if (data && data.project) {
+        setCurrentProject(data.project);
+      }
+    } catch (err) {
+      console.warn('[ProjectDetail] Auto-refresh warning:', err.message);
+    }
+  };
+
+  if (!currentProject) return null;
+
+  const activeProj = currentProject;
 
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('en-KE', {
@@ -22,7 +44,7 @@ export default function ProjectDetail({ project, onBack, token }) {
     }).format(val);
   };
 
-  const risk = project.risk_score;
+  const risk = activeProj.risk_score;
   const riskProbPct = risk ? (risk.delay_risk_score * 100).toFixed(1) : '12.0';
   const riskLevel = risk ? risk.risk_level : 'LOW';
 
@@ -71,7 +93,16 @@ export default function ProjectDetail({ project, onBack, token }) {
         </button>
 
         <div className="flex items-center space-x-3">
-          <ExecutivePdfExporter project={project} />
+          <button
+            onClick={() => setIsEditModalOpen(true)}
+            className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-700 hover:border-zinc-500 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-colors shadow-md"
+            title="Edit Project Details"
+          >
+            <Edit3 className="w-4 h-4 text-zinc-300" />
+            <span>Edit Project</span>
+          </button>
+
+          <ExecutivePdfExporter project={activeProj} />
 
           <button
             onClick={() => setIsDigestOpen(true)}
@@ -85,7 +116,7 @@ export default function ProjectDetail({ project, onBack, token }) {
       </div>
 
       {/* Anomaly Warning Banner (If metrics contain outliers) */}
-      <AnomalyBadge projectId={project.project_id} token={authToken} />
+      <AnomalyBadge projectId={activeProj.project_id} token={authToken} />
 
       {/* Hero Header Card */}
       <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-7 shadow-2xl space-y-5">
@@ -93,18 +124,18 @@ export default function ProjectDetail({ project, onBack, token }) {
           <div className="space-y-1.5">
             <div className="flex items-center space-x-2">
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-zinc-800 text-zinc-200 border border-zinc-700 uppercase tracking-wider">
-                {project.project_type}
+                {activeProj.project_type}
               </span>
-              {project.nca_contractor_grade && (
+              {activeProj.nca_contractor_grade && (
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-zinc-900 text-zinc-300 border border-zinc-800">
-                  {project.nca_contractor_grade}
+                  {activeProj.nca_contractor_grade}
                 </span>
               )}
             </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">{project.project_name}</h1>
+            <h1 className="text-3xl font-bold text-white tracking-tight">{activeProj.project_name}</h1>
             <p className="text-xs text-zinc-400 flex items-center space-x-1.5">
               <MapPin className="w-3.5 h-3.5 text-zinc-400" />
-              <span>{project.county} County, Kenya</span>
+              <span>{activeProj.county} County, Kenya</span>
             </p>
           </div>
 
@@ -124,7 +155,7 @@ export default function ProjectDetail({ project, onBack, token }) {
               <DollarSign className="w-3.5 h-3.5 text-zinc-400" />
               <span>Total Project Budget</span>
             </span>
-            <div className="text-xl font-bold text-white">{formatCurrency(project.budget_ksh)}</div>
+            <div className="text-xl font-bold text-white">{formatCurrency(activeProj.budget_ksh)}</div>
           </div>
 
           {/* Timeline */}
@@ -134,7 +165,7 @@ export default function ProjectDetail({ project, onBack, token }) {
               <span>Planned Duration</span>
             </span>
             <div className="text-xs font-semibold text-white mt-1">
-              {project.planned_start_date} &rarr; {project.planned_end_date}
+              {activeProj.planned_start_date} &rarr; {activeProj.planned_end_date}
             </div>
           </div>
 
@@ -159,7 +190,7 @@ export default function ProjectDetail({ project, onBack, token }) {
                   +{risk.cost_overrun_pct}% Est.
                 </div>
                 <div className="text-[10px] text-zinc-400 font-mono mt-0.5">
-                  Est. {formatCurrency(risk.estimated_overrun_ksh || (project.budget_ksh * (risk.cost_overrun_pct / 100)))} overrun
+                  Est. {formatCurrency(risk.estimated_overrun_ksh || (activeProj.budget_ksh * (risk.cost_overrun_pct / 100)))} overrun
                 </div>
               </div>
             ) : (
@@ -170,23 +201,31 @@ export default function ProjectDetail({ project, onBack, token }) {
       </div>
 
       {/* Interactive What-If Scenario Simulator & AI Copilot */}
-      <ScenarioSimulatorCard project={project} token={authToken} />
+      <ScenarioSimulatorCard project={activeProj} token={authToken} />
 
       {/* Financial Cash Flow S-Curve & Burn Trajectory Chart */}
-      <SCurveChart project={project} />
+      <SCurveChart project={activeProj} />
 
       {/* Schedule Forecast Card (ML) */}
-      <ScheduleForecastCard projectId={project.project_id} token={authToken} />
+      <ScheduleForecastCard projectId={activeProj.project_id} token={authToken} />
 
       {/* Milestone Timeline Component */}
-      <MilestoneList projectId={project.project_id} />
+      <MilestoneList projectId={activeProj.project_id} onMilestoneChanged={refreshProject} />
 
       {/* AI Executive Digest Modal */}
       <AIDigestModal
         isOpen={isDigestOpen}
         onClose={() => setIsDigestOpen(false)}
-        projectId={project.project_id}
-        projectName={project.project_name}
+        projectId={activeProj.project_id}
+        projectName={activeProj.project_name}
+      />
+
+      {/* Edit Project Modal */}
+      <ProjectModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSaved={refreshProject}
+        projectToEdit={activeProj}
       />
     </div>
   );

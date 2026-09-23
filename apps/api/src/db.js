@@ -305,7 +305,20 @@ const db = {
       return { rows: [newProject] };
     }
 
-    if (lowerSql.includes('from projects')) {
+    if (lowerSql.startsWith('delete from projects')) {
+      const project_id = params[0];
+      const index = memoryStore.projects.findIndex(p => p.project_id === project_id);
+      if (index === -1) {
+        return { rows: [] };
+      }
+      const deleted = memoryStore.projects.splice(index, 1)[0];
+      // Also delete any associated milestones
+      memoryStore.milestones = memoryStore.milestones.filter(m => m.project_id !== project_id);
+      saveMemoryStoreToDisk();
+      return { rows: [deleted] };
+    }
+
+    if (lowerSql.includes('from projects') && !lowerSql.startsWith('delete')) {
       if (lowerSql.includes('project_id =') && !lowerSql.includes('owner_user_id =')) {
         const id = params[0];
         const project = memoryStore.projects.find(p => p.project_id === id);
@@ -349,17 +362,6 @@ const db = {
       return { rows: [memoryStore.projects[index]] };
     }
 
-    if (lowerSql.startsWith('delete from projects')) {
-      const project_id = params[0];
-      const index = memoryStore.projects.findIndex(p => p.project_id === project_id);
-      if (index === -1) {
-        return { rows: [] };
-      }
-      const deleted = memoryStore.projects.splice(index, 1)[0];
-      saveMemoryStoreToDisk();
-      return { rows: [deleted] };
-    }
-
     // MILESTONES QUERIES
     if (lowerSql.startsWith('insert into milestones')) {
       const [project_id, milestone_name, planned_date, actual_date, status, photo_url] = params;
@@ -378,7 +380,18 @@ const db = {
       return { rows: [newMilestone] };
     }
 
-    if (lowerSql.includes('from milestones')) {
+    if (lowerSql.startsWith('delete from milestones')) {
+      const [milestone_id, project_id] = params;
+      const index = memoryStore.milestones.findIndex(m => m.milestone_id === milestone_id && (!project_id || m.project_id === project_id));
+      if (index === -1) {
+        return { rows: [] };
+      }
+      const deleted = memoryStore.milestones.splice(index, 1)[0];
+      saveMemoryStoreToDisk();
+      return { rows: [deleted] };
+    }
+
+    if (lowerSql.includes('from milestones') && !lowerSql.startsWith('delete')) {
       if (lowerSql.includes('milestone_id =')) {
         const id = params[0];
         const m = memoryStore.milestones.find(m => m.milestone_id === id);
@@ -412,17 +425,6 @@ const db = {
 
       saveMemoryStoreToDisk();
       return { rows: [memoryStore.milestones[index]] };
-    }
-
-    if (lowerSql.startsWith('delete from milestones')) {
-      const [milestone_id, project_id] = params;
-      const index = memoryStore.milestones.findIndex(m => m.milestone_id === milestone_id && m.project_id === project_id);
-      if (index === -1) {
-        return { rows: [] };
-      }
-      const deleted = memoryStore.milestones.splice(index, 1)[0];
-      saveMemoryStoreToDisk();
-      return { rows: [deleted] };
     }
 
     // RISK SCORES QUERIES

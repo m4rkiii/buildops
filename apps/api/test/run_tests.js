@@ -25,6 +25,9 @@ try {
   console.log('\n--- Running Phase I Secondary ML API Tests ---');
   execSync('node test/phase_i_ml.test.js', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
 
+  console.log('\n--- Running Presentation Readiness Master Verification ---');
+  execSync('node test/test_presentation_readiness.js', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
+
   console.log('\n✅ All API test suites passed cleanly!');
 } catch (err) {
   console.error('\n❌ API Test Suite Execution Failed:', err.message);

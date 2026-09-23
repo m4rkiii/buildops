@@ -12,7 +12,7 @@ import NotificationCenter from './components/Notifications/NotificationCenter';
 import { Shield, CheckCircle2, AlertCircle, LogOut, Crown } from 'lucide-react';
 
 function DashboardContent() {
-  const { user, logout, isSupabaseConfigured } = useAuth();
+  const { user, token, logout, isSupabaseConfigured } = useAuth();
   const [selectedProject, setSelectedProject] = useState(null);
   const [authTab, setAuthTab] = useState('login'); // 'login' | 'register'
   const [apiStatus, setApiStatus] = useState('checking');
@@ -172,6 +172,7 @@ function DashboardContent() {
               <ProjectDetail
                 project={selectedProject}
                 onBack={() => setSelectedProject(null)}
+                token={token}
               />
             ) : (
               <div className="space-y-6">

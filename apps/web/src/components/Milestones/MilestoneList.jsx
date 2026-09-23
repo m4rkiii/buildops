@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import MilestoneModal from './MilestoneModal';
 import { CheckCircle2, Clock, AlertOctagon, Circle, Plus, Edit3, Trash2, Calendar, AlertCircle } from 'lucide-react';
 
-export default function MilestoneList({ projectId }) {
+export default function MilestoneList({ projectId, onMilestoneChanged }) {
   const { user } = useAuth();
   const [milestones, setMilestones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +21,7 @@ export default function MilestoneList({ projectId }) {
     try {
       const data = await getMilestones(projectId);
       setMilestones(data.milestones || []);
+      if (onMilestoneChanged) onMilestoneChanged();
     } catch (err) {
       setError(err.message);
     } finally {
