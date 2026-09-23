@@ -1,0 +1,226 @@
+{
+  "users": [
+    {
+      "user_id": "demo-contractor-001",
+      "full_name": "Eng. Kamau Maina (Lead Contractor)",
+      "email": "contractor@buildops.co.ke",
+      "password_hash": "$2a$10$qTEF85cSP2t43Ap3gORpR.DpfOyLNJ6ZrksEA5zt0ciAHINgGSw06",
+      "role": "contractor",
+      "phone_number": "+254712345678",
+      "created_at": "2026-09-23T09:35:42.560Z"
+    },
+    {
+      "user_id": "demo-regulator-002",
+      "full_name": "Officer Njeri Wanjiku (NCA Regulator)",
+      "email": "regulator@nca.go.ke",
+      "password_hash": "$2a$10$qTEF85cSP2t43Ap3gORpR.DpfOyLNJ6ZrksEA5zt0ciAHINgGSw06",
+      "role": "nca_regulator",
+      "phone_number": "+254722998877",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "user_id": "demo-officer-003",
+      "full_name": "Hon. Otieno Omondi (Gov Officer)",
+      "email": "officer@infrastructure.go.ke",
+      "password_hash": "$2a$10$qTEF85cSP2t43Ap3gORpR.DpfOyLNJ6ZrksEA5zt0ciAHINgGSw06",
+      "role": "government_officer",
+      "phone_number": "+254733445566",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "user_id": "demo-supervisor-004",
+      "full_name": "Supervisor Hassan Ali",
+      "email": "supervisor@buildops.co.ke",
+      "password_hash": "$2a$10$qTEF85cSP2t43Ap3gORpR.DpfOyLNJ6ZrksEA5zt0ciAHINgGSw06",
+      "role": "site_supervisor",
+      "phone_number": "+254700112233",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "user_id": "demo-homeowner-005",
+      "full_name": "Dr. Grace Mutua",
+      "email": "homeowner@buildops.co.ke",
+      "password_hash": "$2a$10$qTEF85cSP2t43Ap3gORpR.DpfOyLNJ6ZrksEA5zt0ciAHINgGSw06",
+      "role": "homeowner",
+      "phone_number": "+254788554433",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "user_id": "1974d843-d6d5-4284-b7cf-5dbb421df630",
+      "full_name": "Wanjiku Njuguna",
+      "email": "wanjiku@buildops.co.ke",
+      "password_hash": "$2a$12$JYGo0jAD6kYhxLvU6yTVKODOYudUVGMqVlutKzg61q06kBno65YWK",
+      "role": "contractor",
+      "phone_number": "+254700000111",
+      "created_at": "2026-09-23T09:35:37.841Z"
+    },
+    {
+      "user_id": "036e86ba-775c-4351-a839-9555649c7267",
+      "full_name": "Other Contractor",
+      "email": "other@buildops.co.ke",
+      "password_hash": "$2a$12$BNbn9Ge9/1rsfad/74I9ze3YUJexxVH1ZTZahQesCqIikmtd2GuX6",
+      "role": "contractor",
+      "phone_number": null,
+      "created_at": "2026-09-23T09:35:38.888Z"
+    },
+    {
+      "user_id": "650fad8e-9130-4b1e-b78f-ce3de075c5f9",
+      "full_name": "Lead Contractor Kamau",
+      "email": "contractor_kamau_1790156139588@buildops.co.ke",
+      "password_hash": "$2a$12$pNfQMRB/BPvoQemlUgRQpeoxGR8lLELhZ6EYzSf3BsSN.75JFCwBu",
+      "role": "contractor",
+      "phone_number": null,
+      "created_at": "2026-09-23T09:35:40.084Z"
+    },
+    {
+      "user_id": "febbcbc6-1370-40a7-9c4c-40e56dbdd014",
+      "full_name": "NCA Compliance Officer Njeri",
+      "email": "nca_njeri_1790156140132@nca.go.ke",
+      "password_hash": "$2a$12$nWWo/6CZzXRol1oQfMaf3ewZpcX.haNmV6rpvYUmFfu8MtEFlXx76",
+      "role": "nca_regulator",
+      "phone_number": null,
+      "created_at": "2026-09-23T09:35:40.597Z"
+    },
+    {
+      "user_id": "dd50654b-3d94-4c26-a81f-7fca8f2a2141",
+      "full_name": "ML Lead Contractor Otieno",
+      "email": "contractor_otieno_1790156141318@buildops.co.ke",
+      "password_hash": "$2a$12$K8G.5aChptxXWYPgGatDoeSfDIfGviAMDPPyibaQVD3clELRy5Opy",
+      "role": "contractor",
+      "phone_number": null,
+      "created_at": "2026-09-23T09:35:41.789Z"
+    }
+  ],
+  "projects": [
+    {
+      "project_id": "proj-001-nairobi-tower",
+      "owner_user_id": "demo-contractor-001",
+      "project_name": "Nairobi High-Rise Commercial Tower",
+      "project_type": "Commercial",
+      "county": "Nairobi",
+      "nca_contractor_grade": "NCA 1",
+      "budget_ksh": 450000000,
+      "planned_start_date": "2026-01-15",
+      "planned_end_date": "2027-12-31",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "project_id": "proj-002-mombasa-bridge",
+      "owner_user_id": "demo-contractor-001",
+      "project_name": "Mombasa Bypass Interchange & Coastal Civil Works",
+      "project_type": "Infrastructure",
+      "county": "Mombasa",
+      "nca_contractor_grade": "NCA 1",
+      "budget_ksh": 850000000,
+      "planned_start_date": "2026-03-01",
+      "planned_end_date": "2028-06-30",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "project_id": "proj-003-kisumu-mixed",
+      "owner_user_id": "demo-contractor-001",
+      "project_name": "Kisumu Lakefront Mixed-Use Development",
+      "project_type": "Residential",
+      "county": "Kisumu",
+      "nca_contractor_grade": "NCA 2",
+      "budget_ksh": 320000000,
+      "planned_start_date": "2026-05-01",
+      "planned_end_date": "2027-11-30",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_id": "m1-foundation",
+      "project_id": "proj-001-nairobi-tower",
+      "milestone_name": "Site Excavation & Deep Foundation Piling",
+      "planned_date": "2026-03-31",
+      "actual_date": "2026-03-28",
+      "status": "completed",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "milestone_id": "m2-basement",
+      "project_id": "proj-001-nairobi-tower",
+      "milestone_name": "Substructure Concrete Pouring & Retaining Walls",
+      "planned_date": "2026-06-30",
+      "actual_date": "2026-07-05",
+      "status": "completed",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "milestone_id": "m3-superstructure",
+      "project_id": "proj-001-nairobi-tower",
+      "milestone_name": "Structural Steel Frame & Multi-Story Slab Erection",
+      "planned_date": "2026-11-15",
+      "actual_date": null,
+      "status": "in_progress",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "milestone_id": "m4-facade",
+      "project_id": "proj-001-nairobi-tower",
+      "milestone_name": "Curtain Wall Exterior Glazing & Weatherproofing",
+      "planned_date": "2027-04-30",
+      "actual_date": null,
+      "status": "pending",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "milestone_id": "m5-kisumu-site",
+      "project_id": "proj-003-kisumu-mixed",
+      "milestone_name": "Site Clearance & Geotechnical Excavation",
+      "planned_date": "2026-06-30",
+      "actual_date": "2026-06-25",
+      "status": "completed",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "milestone_id": "m6-kisumu-foundation",
+      "project_id": "proj-003-kisumu-mixed",
+      "milestone_name": "Raft Foundation Concrete Pouring",
+      "planned_date": "2026-10-15",
+      "actual_date": null,
+      "status": "in_progress",
+      "created_at": "2026-09-23T09:35:42.561Z"
+    }
+  ],
+  "risk_scores": [
+    {
+      "score_id": "risk-001",
+      "project_id": "proj-001-nairobi-tower",
+      "delay_risk_score": 0.18,
+      "cost_overrun_pct": 4.2,
+      "risk_level": "LOW",
+      "model_version": "ensemble-v1.0.0",
+      "calculated_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "score_id": "risk-002",
+      "project_id": "proj-002-mombasa-bridge",
+      "delay_risk_score": 0.22,
+      "cost_overrun_pct": 5.1,
+      "risk_level": "LOW",
+      "model_version": "ensemble-v1.0.0",
+      "calculated_at": "2026-09-23T09:35:42.561Z"
+    },
+    {
+      "score_id": "risk-003",
+      "project_id": "proj-003-kisumu-mixed",
+      "delay_risk_score": 0.14,
+      "cost_overrun_pct": 2.8,
+      "risk_level": "LOW",
+      "model_version": "ensemble-v1.0.0",
+      "calculated_at": "2026-09-23T09:35:42.561Z"
+    }
+  ],
+  "notifications": [
+    {
+      "notification_id": "notif-001",
+      "project_id": "proj-001-nairobi-tower",
+      "channel": "SMS",
+      "message": "[BuildOps Sentinel Alert] Substructure Concrete Pouring milestone completed on 2026-07-05.",
+      "sent_at": "2026-09-23T09:35:42.561Z"
+    }
+  ]
+}
