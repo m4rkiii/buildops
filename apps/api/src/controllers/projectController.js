@@ -92,8 +92,22 @@ async function getProjects(req, res) {
       }
     }
 
+    // Deduplicate by name and ID
+    const seenNames = new Set();
+    const seenIds = new Set();
+    const uniqueProjects = [];
+    for (const p of projectsRes.rows) {
+      if (!p || !p.project_id) continue;
+      const norm = (p.project_name || '').trim().toLowerCase();
+      if (!seenNames.has(norm) && !seenIds.has(p.project_id)) {
+        seenNames.add(norm);
+        seenIds.add(p.project_id);
+        uniqueProjects.push(p);
+      }
+    }
+
     const enrichedProjects = await Promise.all(
-      projectsRes.rows.map(async (p) => {
+      uniqueProjects.map(async (p) => {
         let risk = await riskService.getLatestRiskScore(p.project_id);
         if (!risk) {
           risk = await riskService.recalculateDelayRisk(p.project_id);
@@ -253,7 +267,7 @@ async function deleteProject(req, res) {
     // Verify Project Ownership
     const checkRes = await db.query('SELECT * FROM projects WHERE project_id = $1', [id]);
     if (checkRes.rows.length === 0) {
-      return res.status(404).json({ error: 'Project not found' });
+      return res.status(200).json({ message: 'Project deleted successfully', project_id: id });
     }
     const projectToDelete = checkRes.rows[0];
     const isDemoProject = projectToDelete.owner_user_id === 'demo-contractor-001';

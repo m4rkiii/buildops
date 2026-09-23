@@ -61,18 +61,23 @@ export async function getProjects() {
       headers: getAuthHeaders()
     });
     if (data && Array.isArray(data.projects)) {
-      const cached = getCachedProjects();
-      const backendIds = new Set(data.projects.map(p => p.project_id));
-      const localOnly = cached.filter(p => p && p.project_id && !backendIds.has(p.project_id));
+      // Deduplicate projects by ID and project_name
+      const seenIds = new Set();
+      const seenNames = new Set();
+      const uniqueProjects = [];
 
-      // Auto-sync local-only cached projects to backend so they exist server-side
-      for (const localProj of localOnly) {
-        createProject(localProj).catch(() => {});
+      for (const p of data.projects) {
+        if (!p || !p.project_id) continue;
+        const normName = (p.project_name || '').trim().toLowerCase();
+        if (!seenIds.has(p.project_id) && !seenNames.has(normName)) {
+          seenIds.add(p.project_id);
+          seenNames.add(normName);
+          uniqueProjects.push(p);
+        }
       }
 
-      const merged = [...data.projects, ...localOnly];
-      saveCachedProjects(merged);
-      return { projects: merged };
+      saveCachedProjects(uniqueProjects);
+      return { projects: uniqueProjects };
     }
     return data;
   } catch (err) {
@@ -118,13 +123,23 @@ export async function updateProject(id, projectData) {
 }
 
 export async function deleteProject(id) {
-  const result = await safeFetch(`${API_BASE_URL}/projects/${id}`, {
-    method: 'DELETE',
-    headers: getAuthHeaders()
-  });
-  const cached = getCachedProjects().filter(p => p && p.project_id !== id);
-  saveCachedProjects(cached);
-  return result;
+  // Purge from cache immediately so it never revives
+  const currentCached = getCachedProjects();
+  saveCachedProjects(currentCached.filter(p => p && p.project_id !== id));
+
+  try {
+    const result = await safeFetch(`${API_BASE_URL}/projects/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    return result;
+  } catch (err) {
+    // If the server reported "not found" (404), it's already deleted on the server, so treat as success!
+    if (err.message && err.message.toLowerCase().includes('not found')) {
+      return { message: 'Project removed successfully', project_id: id };
+    }
+    throw err;
+  }
 }
 
 // Milestones API

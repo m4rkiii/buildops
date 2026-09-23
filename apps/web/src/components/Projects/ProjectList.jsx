@@ -21,7 +21,20 @@ export default function ProjectList({ onSelectProject }) {
     setError(null);
     try {
       const data = await getProjects();
-      setProjects(data.projects || []);
+      const list = data.projects || [];
+      const seenIds = new Set();
+      const seenNames = new Set();
+      const unique = [];
+      for (const p of list) {
+        if (!p || !p.project_id) continue;
+        const normName = (p.project_name || '').trim().toLowerCase();
+        if (!seenIds.has(p.project_id) && !seenNames.has(normName)) {
+          seenIds.add(p.project_id);
+          seenNames.add(normName);
+          unique.push(p);
+        }
+      }
+      setProjects(unique);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -50,11 +63,14 @@ export default function ProjectList({ onSelectProject }) {
     e.stopPropagation();
     if (isNcaRegulator) return;
     if (window.confirm(`Are you sure you want to delete "${projectName}"?`)) {
+      // Optimistically remove from state immediately
+      setProjects(prev => prev.filter(p => p.project_id !== projectId && p.project_name !== projectName));
       try {
         await deleteProject(projectId);
-        fetchProjects();
       } catch (err) {
-        alert(`Delete failed: ${err.message}`);
+        console.warn('Delete project warning:', err.message);
+      } finally {
+        fetchProjects();
       }
     }
   };

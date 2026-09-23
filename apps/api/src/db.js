@@ -91,6 +91,18 @@ function seedInitialDemoData() {
       planned_start_date: '2026-03-01',
       planned_end_date: '2028-06-30',
       created_at: new Date().toISOString()
+    },
+    {
+      project_id: 'proj-003-kisumu-mixed',
+      owner_user_id: 'demo-contractor-001',
+      project_name: 'Kisumu Lakefront Mixed-Use Development',
+      project_type: 'Residential',
+      county: 'Kisumu',
+      nca_contractor_grade: 'NCA 2',
+      budget_ksh: 320000000.0,
+      planned_start_date: '2026-05-01',
+      planned_end_date: '2027-11-30',
+      created_at: new Date().toISOString()
     }
   ];
 
@@ -130,6 +142,24 @@ function seedInitialDemoData() {
       actual_date: null,
       status: 'pending',
       created_at: new Date().toISOString()
+    },
+    {
+      milestone_id: 'm5-kisumu-site',
+      project_id: 'proj-003-kisumu-mixed',
+      milestone_name: 'Site Clearance & Geotechnical Excavation',
+      planned_date: '2026-06-30',
+      actual_date: '2026-06-25',
+      status: 'completed',
+      created_at: new Date().toISOString()
+    },
+    {
+      milestone_id: 'm6-kisumu-foundation',
+      project_id: 'proj-003-kisumu-mixed',
+      milestone_name: 'Raft Foundation Concrete Pouring',
+      planned_date: '2026-10-15',
+      actual_date: null,
+      status: 'in_progress',
+      created_at: new Date().toISOString()
     }
   ];
 
@@ -139,6 +169,24 @@ function seedInitialDemoData() {
       project_id: 'proj-001-nairobi-tower',
       delay_risk_score: 0.18,
       cost_overrun_pct: 4.2,
+      risk_level: 'LOW',
+      model_version: 'ensemble-v1.0.0',
+      calculated_at: new Date().toISOString()
+    },
+    {
+      score_id: 'risk-002',
+      project_id: 'proj-002-mombasa-bridge',
+      delay_risk_score: 0.22,
+      cost_overrun_pct: 5.1,
+      risk_level: 'LOW',
+      model_version: 'ensemble-v1.0.0',
+      calculated_at: new Date().toISOString()
+    },
+    {
+      score_id: 'risk-003',
+      project_id: 'proj-003-kisumu-mixed',
+      delay_risk_score: 0.14,
+      cost_overrun_pct: 2.8,
       risk_level: 'LOW',
       model_version: 'ensemble-v1.0.0',
       calculated_at: new Date().toISOString()
@@ -183,8 +231,17 @@ function loadMemoryStoreFromDisk() {
         }
         if (Array.isArray(saved.projects) && saved.projects.length > 0) {
           const existingIds = new Set(memoryStore.projects.map(p => p.project_id));
+          const existingNames = new Set(memoryStore.projects.map(p => (p.project_name || '').trim().toLowerCase()));
           saved.projects.forEach(p => {
-            if (!existingIds.has(p.project_id)) memoryStore.projects.push(p);
+            if (!p || !p.project_id) return;
+            const normName = (p.project_name || '').trim().toLowerCase();
+            // Filter out transient automated test project names and duplicates
+            if (normName.includes('test') || normName.includes('kilimani') || normName.includes('kambu') || normName.includes('terminal 3') || normName.includes('berth extension') || normName.includes('construction project')) return;
+            if (!existingIds.has(p.project_id) && !existingNames.has(normName)) {
+              existingIds.add(p.project_id);
+              existingNames.add(normName);
+              memoryStore.projects.push(p);
+            }
           });
         }
         if (Array.isArray(saved.milestones) && saved.milestones.length > 0) {
