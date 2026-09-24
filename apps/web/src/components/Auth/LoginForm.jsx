@@ -56,56 +56,8 @@ export default function LoginForm({ onSuccess }) {
     }
   };
 
-  const handleQuickFill = async (id, pwd) => {
-    setIdentifier(id);
-    setPassword(pwd);
-    setError(null);
-    setIsUnconfirmed(false);
-    setSubmitting(true);
-    try {
-      await signInWithUsernameOrEmail(id, pwd);
-      if (onSuccess) onSuccess();
-    } catch (err) {
-      setError(err.message || 'Login failed.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <div className="space-y-4 pt-2">
-      {/* Demo Quick Logins for Instant Presentation */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 space-y-2">
-        <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
-          ⚡ One-Click Presentation Logins
-        </span>
-        <div className="grid grid-cols-3 gap-2">
-          <button
-            type="button"
-            onClick={() => handleQuickFill('contractor@buildops.co.ke', 'Password123!')}
-            className="px-2 py-1.5 bg-black hover:bg-zinc-800 text-white rounded-lg text-[11px] font-semibold border border-zinc-700 transition text-center truncate"
-            title="Eng. Kamau Maina (Lead Contractor)"
-          >
-            🏗️ Contractor
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickFill('regulator@nca.go.ke', 'Password123!')}
-            className="px-2 py-1.5 bg-black hover:bg-zinc-800 text-white rounded-lg text-[11px] font-semibold border border-zinc-700 transition text-center truncate"
-            title="Officer Njeri Wanjiku (NCA Regulator)"
-          >
-            🏛️ Regulator
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickFill('supervisor@buildops.co.ke', 'Password123!')}
-            className="px-2 py-1.5 bg-black hover:bg-zinc-800 text-white rounded-lg text-[11px] font-semibold border border-zinc-700 transition text-center truncate"
-            title="Supervisor Hassan Ali (Site Supervisor)"
-          >
-            📋 Supervisor
-          </button>
-        </div>
-      </div>
 
       {/* Google OAuth Authentication */}
       <GoogleButton label="Sign in with Google" />
